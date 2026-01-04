@@ -7,6 +7,7 @@ import {
   Drawer, 
   List, 
   ListItem, 
+  ListItemButton,
   ListItemIcon, 
   ListItemText, 
   Box 
@@ -45,9 +46,11 @@ export default function Sidebar() {
       <Box sx={{ overflow: 'auto', mt: 8 }}>
         <List>
           {menuItems.map((item) => (
-            <ListItem button key={item.text}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
             </ListItem>
           ))}
         </List>
