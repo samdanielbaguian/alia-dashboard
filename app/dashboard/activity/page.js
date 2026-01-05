@@ -5,7 +5,7 @@
 
 'use client';
 
-import { Box, Typography, Card, CardContent, Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/material';
+import { Box, Typography, Card, CardContent } from '@mui/material';
 import { Timeline as ActivityIcon } from '@mui/icons-material';
 import DashboardLayout from '@/layout/DashboardLayout';
 

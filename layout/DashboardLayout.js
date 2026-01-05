@@ -9,8 +9,7 @@
 import { Box } from '@mui/material';
 import Header from './Header';
 import Sidebar from './Sidebar';
-
-const drawerWidth = 240;
+import { DRAWER_WIDTH } from './constants';
 
 export default function DashboardLayout({ children }) {
   return (
@@ -25,7 +24,7 @@ export default function DashboardLayout({ children }) {
           flexGrow: 1,
           p: 3,
           mt: 8, // Account for header height
-          ml: `${drawerWidth}px`,
+          ml: `${DRAWER_WIDTH}px`,
           backgroundColor: '#ffffff',
           minHeight: '100vh',
         }}

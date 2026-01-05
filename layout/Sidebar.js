@@ -29,8 +29,7 @@ import {
   GetApp as ExportIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
-
-const drawerWidth = 240;
+import { DRAWER_WIDTH } from './constants';
 
 const menuItems = [
   { text: 'Overview', icon: TrendingUpIcon, path: '/dashboard/overview' },
@@ -48,10 +47,10 @@ export default function Sidebar() {
     <Drawer
       variant="permanent"
       sx={{
-        width: drawerWidth,
+        width: DRAWER_WIDTH,
         flexShrink: 0,
         '& .MuiDrawer-paper': {
-          width: drawerWidth,
+          width: DRAWER_WIDTH,
           boxSizing: 'border-box',
           backgroundColor: '#000000',
           color: '#ffffff',
