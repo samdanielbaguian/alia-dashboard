@@ -22,22 +22,24 @@ import {
 import {
   Dashboard as DashboardIcon,
   TrendingUp as TrendingUpIcon,
-  LocalFireDepartment as HeatmapIcon,
-  Star as BestSellersIcon,
-  Notifications as AlertsIcon,
-  Timeline as ActivityIcon,
-  GetApp as ExportIcon,
+  Inventory as ProductsIcon,
+  ShoppingCart as OrdersIcon,
+  People as CustomersIcon,
+  Store as SellersIcon,
+  Assessment as ReportsIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { DRAWER_WIDTH } from './constants';
 
 const menuItems = [
-  { text: 'Overview', icon: TrendingUpIcon, path: '/dashboard/overview' },
-  { text: 'Heatmap', icon: HeatmapIcon, path: '/dashboard/heatmap' },
-  { text: 'Best Sellers', icon: BestSellersIcon, path: '/dashboard/best-sellers' },
-  { text: 'Alerts', icon: AlertsIcon, path: '/dashboard/alerts' },
-  { text: 'Activity', icon: ActivityIcon, path: '/dashboard/activity' },
-  { text: 'Export', icon: ExportIcon, path: '/dashboard/export' },
+  { text: 'Dashboard', icon: TrendingUpIcon, path: '/dashboard/overview' },
+  { text: 'Products', icon: ProductsIcon, path: '/dashboard/products' },
+  { text: 'Orders', icon: OrdersIcon, path: '/dashboard/orders' },
+  { text: 'Customers', icon: CustomersIcon, path: '/dashboard/customers' },
+  { text: 'Sellers', icon: SellersIcon, path: '/dashboard/sellers' },
+  { text: 'Reports', icon: ReportsIcon, path: '/dashboard/reports' },
+  { text: 'Settings', icon: SettingsIcon, path: '/dashboard/settings' },
 ];
 
 export default function Sidebar() {
