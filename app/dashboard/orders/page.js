@@ -30,13 +30,23 @@ export default function OrdersPage() {
   ];
 
   const handleExport = () => {
-    // Mock CSV export
+    // Proper CSV escaping
+    const escapeCSVValue = (value) => {
+      if (value == null) return '';
+      const stringValue = String(value);
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+    };
+
     const csvContent = orders.map(order => 
-      `${order.id},${order.sku},${order.customer},${order.product},${order.amount},${order.status},${order.date}`
+      [order.id, order.sku, order.customer, order.product, order.amount, order.status, order.date]
+        .map(escapeCSVValue).join(',')
     ).join('\n');
     
     const header = 'Order ID,SKU,Customer,Product,Amount,Status,Date\n';
-    const blob = new Blob([header + csvContent], { type: 'text/csv' });
+    const blob = new Blob([header + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

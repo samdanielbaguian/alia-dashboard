@@ -8,6 +8,15 @@
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import { PieChart as PieChartIcon } from '@mui/icons-material';
 
+// Chart configuration constants
+const CHART_CONFIG = {
+  outerRadius: 40,
+  innerRadius: 25,
+  centerX: 50,
+  centerY: 50,
+  innerCircleRadius: 20,
+};
+
 export default function DonutChart({ title, data }) {
   if (!data || !data.labels || !data.datasets || data.datasets.length === 0) {
     return (
@@ -47,11 +56,11 @@ export default function DonutChart({ title, data }) {
   });
   
   // Convert angle to SVG path
-  const getSlicePath = (startAngle, endAngle, outerRadius = 40, innerRadius = 25) => {
-    const start = polarToCartesian(50, 50, outerRadius, endAngle);
-    const end = polarToCartesian(50, 50, outerRadius, startAngle);
-    const innerStart = polarToCartesian(50, 50, innerRadius, endAngle);
-    const innerEnd = polarToCartesian(50, 50, innerRadius, startAngle);
+  const getSlicePath = (startAngle, endAngle, outerRadius = CHART_CONFIG.outerRadius, innerRadius = CHART_CONFIG.innerRadius) => {
+    const start = polarToCartesian(CHART_CONFIG.centerX, CHART_CONFIG.centerY, outerRadius, endAngle);
+    const end = polarToCartesian(CHART_CONFIG.centerX, CHART_CONFIG.centerY, outerRadius, startAngle);
+    const innerStart = polarToCartesian(CHART_CONFIG.centerX, CHART_CONFIG.centerY, innerRadius, endAngle);
+    const innerEnd = polarToCartesian(CHART_CONFIG.centerX, CHART_CONFIG.centerY, innerRadius, startAngle);
     
     const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
     
@@ -93,11 +102,11 @@ export default function DonutChart({ title, data }) {
             ))}
             
             {/* Center circle for total */}
-            <circle cx="50" cy="50" r="20" fill="#f5f5f5" />
-            <text x="50" y="48" textAnchor="middle" fontSize="6" fontWeight="600" fill="#000000">
+            <circle cx={CHART_CONFIG.centerX} cy={CHART_CONFIG.centerY} r={CHART_CONFIG.innerCircleRadius} fill="#f5f5f5" />
+            <text x={CHART_CONFIG.centerX} y="48" textAnchor="middle" fontSize="6" fontWeight="600" fill="#000000">
               Total
             </text>
-            <text x="50" y="54" textAnchor="middle" fontSize="5" fill="#666666">
+            <text x={CHART_CONFIG.centerX} y="54" textAnchor="middle" fontSize="5" fill="#666666">
               {total}%
             </text>
           </svg>

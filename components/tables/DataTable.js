@@ -18,6 +18,7 @@ import {
   Box,
   Chip
 } from '@mui/material';
+import { formatCurrency } from '@/utils/helpers';
 
 export default function DataTable({ title, columns, data, renderCell }) {
   const getStatusColor = (status) => {
@@ -51,7 +52,7 @@ export default function DataTable({ title, columns, data, renderCell }) {
     }
     
     if (column.type === 'currency') {
-      return `€${typeof value === 'number' ? value.toFixed(2) : value}`;
+      return formatCurrency(typeof value === 'number' ? value : parseFloat(value) || 0);
     }
     
     if (column.type === 'number') {

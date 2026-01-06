@@ -12,15 +12,23 @@ import { orders, products, customers, sellers } from '@/data/mockData';
 
 export default function ExportPage() {
   const exportToCSV = (data, filename, headers) => {
+    // Proper CSV escaping: handle quotes, commas, and newlines
+    const escapeCSVValue = (value) => {
+      if (value == null) return '';
+      const stringValue = String(value);
+      // If value contains comma, quote, or newline, wrap in quotes and escape internal quotes
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+    };
+
     const csvContent = data.map(row => 
-      headers.map(header => {
-        const value = row[header.field];
-        return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
-      }).join(',')
+      headers.map(header => escapeCSVValue(row[header.field])).join(',')
     ).join('\n');
     
-    const headerRow = headers.map(h => h.headerName).join(',') + '\n';
-    const blob = new Blob([headerRow + csvContent], { type: 'text/csv' });
+    const headerRow = headers.map(h => escapeCSVValue(h.headerName)).join(',') + '\n';
+    const blob = new Blob([headerRow + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

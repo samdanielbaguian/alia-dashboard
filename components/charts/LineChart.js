@@ -8,6 +8,23 @@
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import { ShowChart as ChartIcon } from '@mui/icons-material';
 
+// Chart configuration constants
+const CHART_CONFIG = {
+  width: 100,
+  height: 80,
+  padding: 10,
+};
+
+// Helper function to calculate X coordinate
+const calculateXCoordinate = (index, totalPoints) => {
+  return (index / (totalPoints - 1)) * (CHART_CONFIG.width - 2 * CHART_CONFIG.padding) + CHART_CONFIG.padding;
+};
+
+// Helper function to calculate Y coordinate
+const calculateYCoordinate = (value, min, range) => {
+  return CHART_CONFIG.height - ((value - min) / range) * (CHART_CONFIG.height - 2 * CHART_CONFIG.padding) - CHART_CONFIG.padding;
+};
+
 export default function LineChart({ title, data, height = 300 }) {
   if (!data || !data.labels || !data.datasets || data.datasets.length === 0) {
     return (
@@ -28,13 +45,9 @@ export default function LineChart({ title, data, height = 300 }) {
   const min = Math.min(...values);
   const range = max - min;
   
-  const width = 100;
-  const chartHeight = 80;
-  const padding = 10;
-  
   const points = values.map((value, index) => {
-    const x = (index / (values.length - 1)) * (width - 2 * padding) + padding;
-    const y = chartHeight - ((value - min) / range) * (chartHeight - 2 * padding) - padding;
+    const x = calculateXCoordinate(index, values.length);
+    const y = calculateYCoordinate(value, min, range);
     return `${x},${y}`;
   }).join(' ');
   
@@ -48,17 +61,17 @@ export default function LineChart({ title, data, height = 300 }) {
         
         <Box sx={{ position: 'relative', width: '100%', height: `${height}px` }}>
           <svg
-            viewBox={`0 0 ${width} ${chartHeight}`}
+            viewBox={`0 0 ${CHART_CONFIG.width} ${CHART_CONFIG.height}`}
             preserveAspectRatio="none"
             style={{ width: '100%', height: '100%' }}
           >
             {/* Grid lines */}
-            <line x1={padding} y1={padding} x2={padding} y2={chartHeight - padding} stroke="#e0e0e0" strokeWidth="0.2" />
-            <line x1={padding} y1={chartHeight - padding} x2={width - padding} y2={chartHeight - padding} stroke="#e0e0e0" strokeWidth="0.2" />
+            <line x1={CHART_CONFIG.padding} y1={CHART_CONFIG.padding} x2={CHART_CONFIG.padding} y2={CHART_CONFIG.height - CHART_CONFIG.padding} stroke="#e0e0e0" strokeWidth="0.2" />
+            <line x1={CHART_CONFIG.padding} y1={CHART_CONFIG.height - CHART_CONFIG.padding} x2={CHART_CONFIG.width - CHART_CONFIG.padding} y2={CHART_CONFIG.height - CHART_CONFIG.padding} stroke="#e0e0e0" strokeWidth="0.2" />
             
             {/* Area under curve */}
             <polygon
-              points={`${padding},${chartHeight - padding} ${points} ${width - padding},${chartHeight - padding}`}
+              points={`${CHART_CONFIG.padding},${CHART_CONFIG.height - CHART_CONFIG.padding} ${points} ${CHART_CONFIG.width - CHART_CONFIG.padding},${CHART_CONFIG.height - CHART_CONFIG.padding}`}
               fill={`${color}20`}
             />
             
