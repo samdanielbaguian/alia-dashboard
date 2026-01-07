@@ -28,6 +28,7 @@ import {
   Store as SellersIcon,
   Assessment as ReportsIcon,
   Settings as SettingsIcon,
+  Palette as CustomIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { DRAWER_WIDTH } from './constants';
@@ -36,6 +37,7 @@ const menuItems = [
   { text: 'Dashboard', icon: TrendingUpIcon, path: '/dashboard/overview' },
   { text: 'Products', icon: ProductsIcon, path: '/dashboard/products' },
   { text: 'Orders', icon: OrdersIcon, path: '/dashboard/orders' },
+  { text: 'Custom Orders', icon: CustomIcon, path: '/dashboard/custom-orders' },
   { text: 'Customers', icon: CustomersIcon, path: '/dashboard/customers' },
   { text: 'Sellers', icon: SellersIcon, path: '/dashboard/sellers' },
   { text: 'Reports', icon: ReportsIcon, path: '/dashboard/reports' },
