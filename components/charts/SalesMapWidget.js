@@ -20,6 +20,8 @@ export default function SalesMapWidget({ title = "Zones de Vente", data = [] }) 
   useEffect(() => {
     // Load Google Maps API script
     const loadGoogleMaps = () => {
+      if (typeof window === 'undefined') return;
+      
       if (window.google && window.google.maps) {
         initMap();
         return;
@@ -61,7 +63,7 @@ export default function SalesMapWidget({ title = "Zones de Vente", data = [] }) 
   }, [viewMode]);
 
   const initMap = () => {
-    if (!mapRef.current || !window.google) return;
+    if (!mapRef.current || typeof window === 'undefined' || !window.google) return;
 
     const map = new window.google.maps.Map(mapRef.current, {
       center: { lat: 46.603354, lng: 1.888334 }, // Center of France
@@ -80,7 +82,7 @@ export default function SalesMapWidget({ title = "Zones de Vente", data = [] }) 
   };
 
   const updateVisualization = () => {
-    if (!mapInstanceRef.current || !window.google) return;
+    if (!mapInstanceRef.current || typeof window === 'undefined' || !window.google) return;
 
     // Clear existing markers
     markersRef.current.forEach(marker => marker.setMap(null));
@@ -190,12 +192,12 @@ export default function SalesMapWidget({ title = "Zones de Vente", data = [] }) 
             height: 400,
             borderRadius: 1,
             backgroundColor: '#f5f5f5',
-            display: window.google ? 'block' : 'none'
+            display: typeof window !== 'undefined' && window.google ? 'block' : 'none'
           }}
         />
 
         {/* Demo Fallback - SVG visualization when Google Maps is not loaded */}
-        {!window.google && (
+        {(typeof window === 'undefined' || !window.google) && (
           <Box sx={{ width: '100%', height: 400, position: 'relative', backgroundColor: '#e3f2fd', borderRadius: 1, overflow: 'hidden' }}>
             <svg width="100%" height="100%" viewBox="0 0 800 400">
               {/* Simple map outline of France */}

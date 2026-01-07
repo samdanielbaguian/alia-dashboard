@@ -100,22 +100,34 @@ alia-dashboard/
 - **Graphique des tendances** : Courbe des ventes sur 12 mois (SVG)
 - **Graphique donut** : Distribution par catégorie (SVG)
 - **Heatmap des ventes** : Activité par jour et heure (PRÉSERVÉE)
+- **Carte Google Map** : Visualisation des zones de vente par région avec pins/heatmap (**NOUVEAU**)
 - **Tableaux** :
   - Commandes récentes avec SKU
-  - Meilleures ventes avec SKU
+  - Meilleures ventes avec SKU et attributs détaillés
   - Top clients
 
 ### 📦 Gestion des Produits
 - Liste complète des produits avec SKU
+- **Attributs étendus** : Taille (XS-XXL), Couleur, Poids, Dimensions, Matière (**NOUVEAU**)
 - Stats : Total, Actifs, Stock bas, Rupture de stock
 - Table avec filtrage et statuts colorés
+- Export CSV avec tous les attributs
 - Bouton "Ajouter un produit"
 
 ### 🛒 Gestion des Commandes
 - Liste complète des commandes avec SKU
 - Stats : Total, Complétées, En traitement, En attente
-- Export CSV fonctionnel
+- Export CSV fonctionnel avec attributs produits
 - Statuts visuels (complété, en cours, expédié, etc.)
+
+### 🎨 Commandes Personnalisées (**NOUVEAU**)
+- **Gestion complète des articles personnalisables** (maillots, t-shirts, mugs, etc.)
+- **Champs de personnalisation** : Nom, Numéro, Couleur, Texte personnalisé
+- **Table dédiée** : Toutes les commandes avec personnalisation
+- **Détails des choix client** : Interface claire pour chaque commande
+- **Export CSV spécialisé** : Inclut toutes les options de personnalisation
+- **Guide du vendeur** : Instructions pour traiter les commandes personnalisées
+- Stats : Total, En cours, Expédiées, Complétées
 
 ### 👥 Gestion des Clients
 - Liste des clients avec historique
@@ -145,9 +157,10 @@ alia-dashboard/
 ### 🔔 Pages Additionnelles
 - **Alertes** : Système d'alertes avec types (info, warning, error, success)
 - **Activité** : Flux d'activité temps réel
-- **Best Sellers** : Page dédiée aux meilleures ventes avec SKU
-- **Export** : Centre d'export CSV pour toutes les données
+- **Best Sellers** : Page dédiée aux meilleures ventes avec SKU et attributs produits
+- **Export** : Centre d'export CSV pour toutes les données avec attributs étendus
 - **Heatmap** : Page dédiée à la heatmap (PRÉSERVÉE de l'original)
+- **Custom Orders** : Gestion dédiée des commandes personnalisées (**NOUVEAU**)
 
 ## 🎯 Composants Réutilisables
 
@@ -188,6 +201,19 @@ alia-dashboard/
 />
 ```
 
+### SalesMapWidget (**NOUVEAU**)
+```jsx
+<SalesMapWidget
+  title="Zones de Vente par Région"
+  data={salesZones}
+/>
+```
+Affiche une carte interactive des zones de vente avec :
+- Toggle entre vue Pins et Heatmap
+- Visualisation SVG (fallback sans clé Google Maps API)
+- Statistiques par densité (haute, moyenne, faible)
+- Données pour 10 villes françaises avec ventes et revenus
+
 ### DataTable
 ```jsx
 <DataTable
@@ -203,8 +229,11 @@ Toutes les données sont réalistes et disponibles dans `data/mockData.js` :
 
 - **KPI Data** : Métriques clés avec variations
 - **Orders** : 10+ commandes avec SKU, clients, produits, montants, statuts
-- **Products** : 5+ produits avec SKU, catégories, prix, stock, vendeurs
+- **Products** : 5+ produits avec **attributs étendus** (taille, couleur, poids, dimensions, matière)
 - **Customers** : 7+ clients avec commandes, dépenses, statuts VIP
+- **Sales Zones** : 10 villes françaises avec coordonnées GPS, ventes, revenus et densité (**NOUVEAU**)
+- **Customizable Products** : 3 produits personnalisables (maillots, t-shirts, mugs) (**NOUVEAU**)
+- **Custom Orders** : 8 commandes personnalisées avec détails de personnalisation (**NOUVEAU**)
 - **Sellers** : 4+ vendeurs avec produits, ventes, notations
 - **Sales Chart** : Données mensuelles sur 12 mois
 - **Category Distribution** : 6 catégories avec pourcentages
@@ -230,24 +259,68 @@ Toutes les données sont réalistes et disponibles dans `data/mockData.js` :
 
 ## 🔧 Fonctionnalités Avancées
 
+### 🗺️ Visualisation Géographique des Ventes (**NOUVEAU**)
+Widget de carte interactive pour visualiser les zones de vente :
+- **Toggle Pins/Heatmap** : Basculer entre vue par pins et heatmap de densité
+- **10 zones françaises** : Paris, Lyon, Marseille, Toulouse, Bordeaux, Lille, Nantes, Strasbourg, Rennes, Nice
+- **Densité codée par couleur** : Rouge (haute), Orange (moyenne), Vert (faible)
+- **Info-bulles interactives** : Affiche ville, région, nombre de ventes et revenu
+- **Statistiques résumées** : Par niveau de densité avec totaux
+- **Mode démo SVG** : Fonctionne sans clé API Google Maps
+- **Production ready** : Prêt pour intégration Google Maps API
+
+### 📏 Attributs Produits Étendus (**NOUVEAU**)
+Gestion complète des caractéristiques produits :
+- **Taille** : XS, S, M, L, XL, XXL (selon produit)
+- **Couleur** : Noir, Blanc, Bleu, Rouge, Argent, etc.
+- **Poids** : Format avec unités (g, kg)
+- **Dimensions** : Format standardisé (mm)
+- **Matière** : Titane, Aluminium, Plastique ABS, Coton, Céramique, etc.
+- **Affichage dans tous les tableaux** : Products, Best Sellers, Orders
+- **Inclus dans exports CSV** : Tous les attributs exportés
+
+### 🎨 Gestion des Produits Personnalisables (**NOUVEAU**)
+Système complet pour articles avec personnalisation :
+
+#### Produits Personnalisables
+- **Maillot de Foot Premium** : Nom joueur, numéro, couleur badge, texte personnalisé
+- **T-Shirt Personnalisable** : Texte personnalisé, couleur texte, taille police
+- **Mug Personnalisable** : Texte personnalisé, image uploadée
+
+#### Page Custom Orders (`/dashboard/custom-orders`)
+- **Table complète** : Toutes les commandes avec personnalisation
+- **Stats KPI** : Total, En cours, Expédiées, Complétées
+- **Détails de personnalisation** : Affichage clair de tous les choix client
+- **Cartes détaillées** : 4 premières commandes avec toutes les options
+- **Export CSV spécialisé** : Inclut JSON des personnalisations
+- **Guide du vendeur** : Instructions en 3 étapes pour traiter les commandes
+
+#### Options de Personnalisation
+- **Nom/Texte** : Limite de caractères configurable
+- **Numéro** : Plage min/max (0-99 pour maillots)
+- **Couleur** : Options prédéfinies (Or, Argent, Bronze, etc.)
+- **Taille police** : S, M, L
+- **Image** : Upload d'image personnalisée (JPG/PNG)
+
 ### Export CSV
-Tous les exports incluent les SKU et sont fonctionnels :
-- Orders Export : Toutes les commandes
-- Products Export : Catalogue complet
-- Customers Export : Base de données clients
-- Sellers Export : Informations vendeurs
+Tous les exports incluent les attributs étendus et sont fonctionnels :
+- **Orders Export** : Toutes les commandes avec SKU
+- **Products Export** : Catalogue complet avec taille, couleur, poids, dimensions, matière
+- **Custom Orders Export** : Commandes personnalisées avec détails de personnalisation
+- **Customers Export** : Base de données clients
+- **Sellers Export** : Informations vendeurs
 
 ### Tables Interactives
 - Tri par colonnes
 - Statuts colorés (complété, en cours, etc.)
-- Affichage du SKU partout
+- Affichage du SKU et attributs produits
 - Formatage automatique (devise, nombres)
 
 ### Charts SVG Natifs
 - Aucune dépendance externe de graphiques
 - Charts SVG légers et performants
 - Responsive et interactifs
-- Hover effects sur la heatmap
+- Hover effects sur la heatmap et carte des ventes
 
 ## 📝 Convention de Code
 
@@ -276,35 +349,49 @@ Le thème est configurable dans `styles/theme.js` pour personnaliser :
 ## 🚦 Navigation
 
 ### Menu Principal
-1. **Dashboard** - Vue d'ensemble avec KPI et graphiques
-2. **Products** - Gestion du catalogue produits
-3. **Orders** - Gestion des commandes
-4. **Customers** - Gestion des clients
-5. **Sellers** - Gestion des vendeurs/marchands
-6. **Reports** - Analytics et rapports détaillés
-7. **Settings** - Configuration du dashboard
+1. **Dashboard** - Vue d'ensemble avec KPI, graphiques et carte des ventes
+2. **Products** - Gestion du catalogue avec attributs étendus (taille, couleur, poids, etc.)
+3. **Orders** - Gestion des commandes standards
+4. **Custom Orders** - Gestion des commandes personnalisées (**NOUVEAU**)
+5. **Customers** - Gestion des clients
+6. **Sellers** - Gestion des vendeurs/marchands
+7. **Reports** - Analytics et rapports détaillés
+8. **Settings** - Configuration du dashboard
 
 ### Pages Additionnelles (accessibles via URL)
 - `/dashboard/heatmap` - Heatmap dédiée
 - `/dashboard/alerts` - Centre de notifications
 - `/dashboard/activity` - Flux d'activité
-- `/dashboard/best-sellers` - Meilleures ventes
-- `/dashboard/export` - Centre d'export
+- `/dashboard/best-sellers` - Meilleures ventes avec attributs produits
+- `/dashboard/export` - Centre d'export avec attributs étendus
+- `/dashboard/custom-orders` - Gestion complète des commandes personnalisées (**NOUVEAU**)
 
 ## 🎯 Points Clés
 
-✅ **Architecture complète** - Structure Bagisto-inspired avec tous les modules principaux
-✅ **Données réalistes** - Mock data complètes dans tous les widgets et tableaux
-✅ **SKU partout** - Affichage du SKU dans toutes les tables (commandes, produits, best sellers)
-✅ **Charts natifs** - Graphiques SVG sans dépendances externes
-✅ **Export CSV** - Fonctionnalité d'export fonctionnelle pour toutes les données
-✅ **Heatmap préservée** - Widget heatmap original maintenu et amélioré
-✅ **Design cohérent** - Thème blanc/bleu/noir Bagisto-style
-✅ **Composants réutilisables** - KPICard, Charts, Tables, etc.
-✅ **Navigation complète** - Sidebar avec 7 sections principales
-✅ **Responsive** - Interface adaptative Material UI
+✅ **Architecture complète** - Structure Bagisto-inspired avec tous les modules principaux  
+✅ **Données réalistes** - Mock data complètes dans tous les widgets et tableaux  
+✅ **SKU partout** - Affichage du SKU dans toutes les tables (commandes, produits, best sellers)  
+✅ **Attributs produits étendus** - Taille, couleur, poids, dimensions, matière (**NOUVEAU**)  
+✅ **Carte des ventes** - Widget Google Maps avec pins/heatmap des zones de vente (**NOUVEAU**)  
+✅ **Produits personnalisables** - Gestion complète avec commandes dédiées (**NOUVEAU**)  
+✅ **Charts natifs** - Graphiques SVG sans dépendances externes  
+✅ **Export CSV** - Fonctionnalité d'export avec tous les attributs étendus  
+✅ **Heatmap préservée** - Widget heatmap original maintenu et amélioré  
+✅ **Design cohérent** - Thème blanc/bleu/noir Bagisto-style  
+✅ **Composants réutilisables** - KPICard, Charts, Tables, Maps, etc.  
+✅ **Navigation complète** - Sidebar avec 8 sections principales  
+✅ **Responsive** - Interface adaptative Material UI  
 
 ## 📸 Captures d'écran
+
+### Dashboard Overview avec Carte des Ventes
+![Dashboard avec carte Google Maps](https://github.com/user-attachments/assets/7165a232-6426-4768-a49e-7878b4d4376e)
+
+### Gestion des Commandes Personnalisées
+![Page Custom Orders](https://github.com/user-attachments/assets/9df7078d-3226-45c1-bd32-bced5a257cab)
+
+### Produits avec Attributs Étendus
+![Products avec attributs](https://github.com/user-attachments/assets/674c4edb-87fa-4df0-bd2e-3e29c8ac6a6a)
 
 ### Dashboard Principal
 ![Dashboard Overview](https://github.com/user-attachments/assets/4db2b50a-ea4c-4bef-8131-890c67640b3d)
@@ -318,6 +405,10 @@ Le thème est configurable dans `styles/theme.js` pour personnaliser :
 ## 🛠️ Développement Futur
 
 Fonctionnalités prêtes à être ajoutées :
+- **Intégration Google Maps API** - Remplacer le fallback SVG par une vraie carte Google Maps
+- **Upload d'images** - Pour les personnalisations de produits (mugs, t-shirts, etc.)
+- **Éditeur de personnalisation** - Interface WYSIWYG pour visualiser les personnalisations
+- **Notifications en temps réel** - Pour les nouvelles commandes personnalisées
 - Backend API avec Next.js API routes
 - Authentification JWT/OAuth
 - Base de données (PostgreSQL/MongoDB)
@@ -335,4 +426,9 @@ MIT
 
 ---
 
-**Note** : Ce dashboard est une implémentation complète Bagisto-inspired avec tous les widgets existants préservés (notamment la carte heatmap des ventes) et de nouvelles fonctionnalités avancées. Toutes les données sont mock et peuvent être facilement remplacées par des appels API réels.
+**Note** : Ce dashboard est une implémentation complète Bagisto-inspired avec tous les widgets existants préservés (notamment la carte heatmap des ventes) et de nouvelles fonctionnalités avancées incluant :
+- ✨ **Carte Google Maps** pour visualisation géographique des ventes
+- ✨ **Attributs produits étendus** (taille, couleur, poids, dimensions, matière)
+- ✨ **Gestion complète des produits personnalisables** avec interface dédiée pour les commandes
+
+Toutes les données sont mock et peuvent être facilement remplacées par des appels API réels.
