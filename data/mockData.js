@@ -122,7 +122,12 @@ export const bestSellers = [
     category: 'Smartphones',
     sales: 342,
     revenue: 409858.00,
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'M',
+    color: 'Noir',
+    weight: '187g',
+    dimensions: '146.6 x 70.6 x 8.25 mm',
+    material: 'Titane'
   },
   {
     rank: 2,
@@ -131,7 +136,12 @@ export const bestSellers = [
     category: 'Computers',
     sales: 198,
     revenue: 257398.02,
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'L',
+    color: 'Argent',
+    weight: '1.8kg',
+    dimensions: '344.7 x 230.1 x 18 mm',
+    material: 'Aluminium'
   },
   {
     rank: 3,
@@ -140,7 +150,12 @@ export const bestSellers = [
     category: 'Tablets',
     sales: 287,
     revenue: 200896.13,
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'M',
+    color: 'Bleu',
+    weight: '461g',
+    dimensions: '247.6 x 178.5 x 6.1 mm',
+    material: 'Aluminium'
   },
   {
     rank: 4,
@@ -149,7 +164,12 @@ export const bestSellers = [
     category: 'Wearables',
     sales: 423,
     revenue: 189927.00,
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'M',
+    color: 'Noir',
+    weight: '42g',
+    dimensions: '45 x 38 x 10.7 mm',
+    material: 'Aluminium'
   },
   {
     rank: 5,
@@ -158,7 +178,12 @@ export const bestSellers = [
     category: 'Audio',
     sales: 589,
     revenue: 164834.11,
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'S',
+    color: 'Blanc',
+    weight: '56g',
+    dimensions: '45.2 x 60.6 x 21.7 mm',
+    material: 'Plastique ABS'
   },
   {
     rank: 6,
@@ -167,7 +192,12 @@ export const bestSellers = [
     category: 'Monitors',
     sales: 156,
     revenue: 85644.00,
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'XL',
+    color: 'Noir',
+    weight: '5.2kg',
+    dimensions: '711.4 x 419.3 x 60 mm',
+    material: 'Plastique ABS'
   },
   {
     rank: 7,
@@ -176,7 +206,12 @@ export const bestSellers = [
     category: 'Accessories',
     sales: 467,
     revenue: 56032.33,
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'M',
+    color: 'Gris',
+    weight: '810g',
+    dimensions: '430.2 x 131.6 x 20.5 mm',
+    material: 'Plastique ABS'
   },
   {
     rank: 8,
@@ -185,7 +220,12 @@ export const bestSellers = [
     category: 'Accessories',
     sales: 512,
     revenue: 51194.88,
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'M',
+    color: 'Gris',
+    weight: '141g',
+    dimensions: '124.9 x 84.3 x 51 mm',
+    material: 'Plastique ABS'
   }
 ];
 
@@ -370,7 +410,12 @@ export const products = [
     stock: 145,
     status: 'active',
     seller: 'Apple Store',
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'M',
+    color: 'Noir',
+    weight: '187g',
+    dimensions: '146.6 x 70.6 x 8.25 mm',
+    material: 'Titane'
   },
   {
     id: 2,
@@ -381,7 +426,12 @@ export const products = [
     stock: 67,
     status: 'active',
     seller: 'Dell Official',
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'L',
+    color: 'Argent',
+    weight: '1.8kg',
+    dimensions: '344.7 x 230.1 x 18 mm',
+    material: 'Aluminium'
   },
   {
     id: 3,
@@ -392,7 +442,12 @@ export const products = [
     stock: 89,
     status: 'active',
     seller: 'Apple Store',
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'M',
+    color: 'Bleu',
+    weight: '461g',
+    dimensions: '247.6 x 178.5 x 6.1 mm',
+    material: 'Aluminium'
   },
   {
     id: 4,
@@ -403,7 +458,12 @@ export const products = [
     stock: 12,
     status: 'low_stock',
     seller: 'Apple Store',
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'M',
+    color: 'Noir',
+    weight: '42g',
+    dimensions: '45 x 38 x 10.7 mm',
+    material: 'Aluminium'
   },
   {
     id: 5,
@@ -414,7 +474,12 @@ export const products = [
     stock: 234,
     status: 'active',
     seller: 'Apple Store',
-    image: '/placeholder-product.png'
+    image: '/placeholder-product.png',
+    size: 'S',
+    color: 'Blanc',
+    weight: '56g',
+    dimensions: '45.2 x 60.6 x 21.7 mm',
+    material: 'Plastique ABS'
   }
 ];
 
@@ -544,5 +609,305 @@ export const activityFeed = [
     message: 'Order #ORD-2024-002 shipped',
     time: '2 hours ago',
     icon: 'local_shipping'
+  }
+];
+
+// Sales Zones Data (for Google Maps)
+export const salesZones = [
+  {
+    id: 1,
+    city: 'Paris',
+    region: 'Île-de-France',
+    lat: 48.8566,
+    lng: 2.3522,
+    sales: 342,
+    revenue: 450820.50,
+    density: 'high'
+  },
+  {
+    id: 2,
+    city: 'Lyon',
+    region: 'Auvergne-Rhône-Alpes',
+    lat: 45.7640,
+    lng: 4.8357,
+    sales: 198,
+    revenue: 285340.00,
+    density: 'high'
+  },
+  {
+    id: 3,
+    city: 'Marseille',
+    region: 'Provence-Alpes-Côte d\'Azur',
+    lat: 43.2965,
+    lng: 5.3698,
+    sales: 165,
+    revenue: 234560.75,
+    density: 'medium'
+  },
+  {
+    id: 4,
+    city: 'Toulouse',
+    region: 'Occitanie',
+    lat: 43.6047,
+    lng: 1.4442,
+    sales: 142,
+    revenue: 198765.00,
+    density: 'medium'
+  },
+  {
+    id: 5,
+    city: 'Bordeaux',
+    region: 'Nouvelle-Aquitaine',
+    lat: 44.8378,
+    lng: -0.5792,
+    sales: 128,
+    revenue: 176890.25,
+    density: 'medium'
+  },
+  {
+    id: 6,
+    city: 'Lille',
+    region: 'Hauts-de-France',
+    lat: 50.6292,
+    lng: 3.0573,
+    sales: 115,
+    revenue: 165432.00,
+    density: 'medium'
+  },
+  {
+    id: 7,
+    city: 'Nantes',
+    region: 'Pays de la Loire',
+    lat: 47.2184,
+    lng: -1.5536,
+    sales: 98,
+    revenue: 142350.50,
+    density: 'low'
+  },
+  {
+    id: 8,
+    city: 'Strasbourg',
+    region: 'Grand Est',
+    lat: 48.5734,
+    lng: 7.7521,
+    sales: 87,
+    revenue: 125670.00,
+    density: 'low'
+  },
+  {
+    id: 9,
+    city: 'Rennes',
+    region: 'Bretagne',
+    lat: 48.1173,
+    lng: -1.6778,
+    sales: 76,
+    revenue: 108450.75,
+    density: 'low'
+  },
+  {
+    id: 10,
+    city: 'Nice',
+    region: 'Provence-Alpes-Côte d\'Azur',
+    lat: 43.7102,
+    lng: 7.2620,
+    sales: 92,
+    revenue: 134280.00,
+    density: 'low'
+  }
+];
+
+// Customizable Products (products with personalization options)
+export const customizableProducts = [
+  {
+    id: 1,
+    sku: 'SKU-JERSEY-001',
+    name: 'Maillot de Foot Premium',
+    category: 'Vêtements Sports',
+    price: 79.99,
+    stock: 250,
+    status: 'active',
+    seller: 'SportStore',
+    image: '/placeholder-product.png',
+    size: 'XS-XXL',
+    color: 'Bleu/Blanc/Rouge',
+    weight: '180g',
+    dimensions: 'Variable selon taille',
+    material: 'Polyester recyclé',
+    customizable: true,
+    customizationOptions: {
+      playerName: { enabled: true, maxLength: 15 },
+      playerNumber: { enabled: true, min: 0, max: 99 },
+      badgeColor: { enabled: true, options: ['Or', 'Argent', 'Bronze'] },
+      customText: { enabled: true, maxLength: 20 }
+    }
+  },
+  {
+    id: 2,
+    sku: 'SKU-TSHIRT-CUSTOM-001',
+    name: 'T-Shirt Personnalisable',
+    category: 'Vêtements',
+    price: 29.99,
+    stock: 500,
+    status: 'active',
+    seller: 'CustomWear',
+    image: '/placeholder-product.png',
+    size: 'XS-XXL',
+    color: 'Noir/Blanc/Bleu/Rouge',
+    weight: '150g',
+    dimensions: 'Variable selon taille',
+    material: 'Coton 100%',
+    customizable: true,
+    customizationOptions: {
+      customText: { enabled: true, maxLength: 50 },
+      textColor: { enabled: true, options: ['Noir', 'Blanc', 'Rouge', 'Bleu', 'Jaune'] },
+      fontSize: { enabled: true, options: ['S', 'M', 'L'] }
+    }
+  },
+  {
+    id: 3,
+    sku: 'SKU-MUG-CUSTOM-001',
+    name: 'Mug Personnalisable',
+    category: 'Accessoires',
+    price: 14.99,
+    stock: 800,
+    status: 'active',
+    seller: 'GiftShop',
+    image: '/placeholder-product.png',
+    size: 'M',
+    color: 'Blanc/Noir',
+    weight: '320g',
+    dimensions: '80 x 95 mm',
+    material: 'Céramique',
+    customizable: true,
+    customizationOptions: {
+      customText: { enabled: true, maxLength: 30 },
+      customImage: { enabled: true, format: 'JPG/PNG' }
+    }
+  }
+];
+
+// Custom Orders (orders with personalization)
+export const customOrders = [
+  {
+    id: 'CUSTOM-ORD-001',
+    orderId: 'ORD-2024-011',
+    sku: 'SKU-JERSEY-001',
+    customer: 'Marc Leblanc',
+    product: 'Maillot de Foot Premium',
+    amount: 79.99,
+    status: 'processing',
+    date: '2024-01-06',
+    customization: {
+      playerName: 'LEBLANC',
+      playerNumber: 10,
+      badgeColor: 'Or',
+      customText: 'Champion 2024'
+    }
+  },
+  {
+    id: 'CUSTOM-ORD-002',
+    orderId: 'ORD-2024-012',
+    sku: 'SKU-JERSEY-001',
+    customer: 'Sophie Durand',
+    product: 'Maillot de Foot Premium',
+    amount: 79.99,
+    status: 'completed',
+    date: '2024-01-05',
+    customization: {
+      playerName: 'DURAND',
+      playerNumber: 7,
+      badgeColor: 'Argent',
+      customText: ''
+    }
+  },
+  {
+    id: 'CUSTOM-ORD-003',
+    orderId: 'ORD-2024-013',
+    sku: 'SKU-TSHIRT-CUSTOM-001',
+    customer: 'Julie Martin',
+    product: 'T-Shirt Personnalisable',
+    amount: 29.99,
+    status: 'shipped',
+    date: '2024-01-05',
+    customization: {
+      customText: 'Team Building 2024',
+      textColor: 'Noir',
+      fontSize: 'L'
+    }
+  },
+  {
+    id: 'CUSTOM-ORD-004',
+    orderId: 'ORD-2024-014',
+    sku: 'SKU-MUG-CUSTOM-001',
+    customer: 'Pierre Dubois',
+    product: 'Mug Personnalisable',
+    amount: 14.99,
+    status: 'completed',
+    date: '2024-01-04',
+    customization: {
+      customText: 'Meilleur Papa du Monde',
+      customImage: 'uploaded_image_1234.jpg'
+    }
+  },
+  {
+    id: 'CUSTOM-ORD-005',
+    orderId: 'ORD-2024-015',
+    sku: 'SKU-JERSEY-001',
+    customer: 'Luc Bernard',
+    product: 'Maillot de Foot Premium',
+    amount: 79.99,
+    status: 'pending',
+    date: '2024-01-06',
+    customization: {
+      playerName: 'BERNARD',
+      playerNumber: 23,
+      badgeColor: 'Bronze',
+      customText: 'France 2024'
+    }
+  },
+  {
+    id: 'CUSTOM-ORD-006',
+    orderId: 'ORD-2024-016',
+    sku: 'SKU-TSHIRT-CUSTOM-001',
+    customer: 'Marie Petit',
+    product: 'T-Shirt Personnalisable',
+    amount: 29.99,
+    status: 'processing',
+    date: '2024-01-06',
+    customization: {
+      customText: 'Born to Code',
+      textColor: 'Bleu',
+      fontSize: 'M'
+    }
+  },
+  {
+    id: 'CUSTOM-ORD-007',
+    orderId: 'ORD-2024-017',
+    sku: 'SKU-MUG-CUSTOM-001',
+    customer: 'Claire Laurent',
+    product: 'Mug Personnalisable',
+    amount: 14.99,
+    status: 'completed',
+    date: '2024-01-03',
+    customization: {
+      customText: 'Coffee & Code',
+      customImage: ''
+    }
+  },
+  {
+    id: 'CUSTOM-ORD-008',
+    orderId: 'ORD-2024-018',
+    sku: 'SKU-JERSEY-001',
+    customer: 'Thomas Robert',
+    product: 'Maillot de Foot Premium',
+    amount: 79.99,
+    status: 'shipped',
+    date: '2024-01-04',
+    customization: {
+      playerName: 'ROBERT',
+      playerNumber: 9,
+      badgeColor: 'Or',
+      customText: 'Champion'
+    }
   }
 ];

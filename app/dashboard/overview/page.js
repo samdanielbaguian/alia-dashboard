@@ -19,6 +19,7 @@ import KPICard from '@/components/cards/KPICard';
 import LineChart from '@/components/charts/LineChart';
 import DonutChart from '@/components/charts/DonutChart';
 import SalesHeatmap from '@/components/charts/SalesHeatmap';
+import SalesMapWidget from '@/components/charts/SalesMapWidget';
 import DataTable from '@/components/tables/DataTable';
 import {
   kpiData,
@@ -28,6 +29,7 @@ import {
   salesChartData,
   categoryDistribution,
   heatmapData,
+  salesZones,
 } from '@/data/mockData';
 import { formatCurrency } from '@/utils/helpers';
 
@@ -144,6 +146,13 @@ export default function OverviewPage() {
         <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid item xs={12}>
             <SalesHeatmap title="Sales Activity Heatmap" data={heatmapData} />
+          </Grid>
+        </Grid>
+
+        {/* Sales Map Widget - NEW FEATURE */}
+        <Grid container spacing={3} sx={{ mb: 3 }}>
+          <Grid item xs={12}>
+            <SalesMapWidget title="Zones de Vente par Région" data={salesZones} />
           </Grid>
         </Grid>
 

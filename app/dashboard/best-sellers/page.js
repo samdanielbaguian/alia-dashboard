@@ -17,6 +17,10 @@ export default function BestSellersPage() {
     { field: 'sku', headerName: 'SKU' },
     { field: 'name', headerName: 'Product Name' },
     { field: 'category', headerName: 'Category' },
+    { field: 'size', headerName: 'Size' },
+    { field: 'color', headerName: 'Color' },
+    { field: 'weight', headerName: 'Weight' },
+    { field: 'material', headerName: 'Material' },
     { field: 'sales', headerName: 'Units Sold', type: 'number' },
     { field: 'revenue', headerName: 'Revenue', type: 'currency' },
   ];
