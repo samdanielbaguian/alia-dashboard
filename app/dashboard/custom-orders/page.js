@@ -43,7 +43,9 @@ export default function CustomOrdersPage() {
     };
 
     const csvContent = customOrders.map(order => {
-      const customizationStr = JSON.stringify(order.customization).replace(/"/g, '""');
+      const customizationStr = order.customization 
+        ? JSON.stringify(order.customization).replace(/"/g, '""')
+        : '';
       return [
         order.id,
         order.orderId,
@@ -173,8 +175,11 @@ export default function CustomOrdersPage() {
                     OPTIONS DE PERSONNALISATION
                   </Typography>
                   
-                  {Object.entries(order.customization).map(([key, value]) => (
-                    value && (
+                  {Object.entries(order.customization).map(([key, value]) => {
+                    // Display all values except null/undefined
+                    if (value === null || value === undefined) return null;
+                    
+                    return (
                       <Box key={key} sx={{ mb: 0.5, display: 'flex', alignItems: 'center' }}>
                         <Typography variant="body2" color="text.secondary" sx={{ minWidth: 120 }}>
                           {key === 'playerName' ? 'Nom Joueur' :
@@ -187,11 +192,11 @@ export default function CustomOrdersPage() {
                            key}:
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 600, color: '#000' }}>
-                          {value}
+                          {value === '' ? '(vide)' : value}
                         </Typography>
                       </Box>
-                    )
-                  ))}
+                    );
+                  })}
 
                   <Divider sx={{ my: 1.5 }} />
 

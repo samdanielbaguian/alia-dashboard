@@ -28,18 +28,18 @@ export default function SalesMapWidget({ title = "Zones de Vente", data = [] }) 
       }
 
       // For demo purposes without actual Google Maps API key, we'll use a static map
-      // In production, uncomment the following and add your API key
+      // In production, uncomment the following and add your API key to .env.local
+      // as NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
       /*
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=visualization`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=visualization`;
       script.async = true;
       script.defer = true;
       script.onload = initMap;
       document.head.appendChild(script);
       */
       
-      // Demo mode - render custom visualization
-      renderDemoMap();
+      // Demo mode - render custom visualization (handled by SVG below)
     };
 
     loadGoogleMaps();
@@ -143,11 +143,6 @@ export default function SalesMapWidget({ title = "Zones de Vente", data = [] }) 
 
       heatmapRef.current.setMap(mapInstanceRef.current);
     }
-  };
-
-  const renderDemoMap = () => {
-    // Demo visualization using SVG when Google Maps API is not available
-    // This provides a fallback visual representation
   };
 
   const getDensityColor = (density) => {
