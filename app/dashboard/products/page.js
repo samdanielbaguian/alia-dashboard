@@ -9,29 +9,36 @@ import { Box, Typography, Button, Grid, Card, CardContent } from '@mui/material'
 import { Add as AddIcon, Inventory as ProductsIcon } from '@mui/icons-material';
 import DashboardLayout from '@/layout/DashboardLayout';
 import DataTable from '@/components/tables/DataTable';
-import { products } from '@/data/mockData';
+import { useEffect, useState } from 'react';
+// ... autres imports, laisse columns/statistiques
+
+// Utilisation variable d'env ou fallback local
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 export default function ProductsPage() {
-  const columns = [
-    { field: 'sku', headerName: 'SKU' },
-    { field: 'name', headerName: 'Product Name' },
-    { field: 'category', headerName: 'Category' },
-    { field: 'size', headerName: 'Size' },
-    { field: 'color', headerName: 'Color' },
-    { field: 'weight', headerName: 'Weight' },
-    { field: 'material', headerName: 'Material' },
-    { field: 'price', headerName: 'Price', type: 'currency' },
-    { field: 'stock', headerName: 'Stock', type: 'number' },
-    { field: 'status', headerName: 'Status', type: 'status' },
-    { field: 'seller', headerName: 'Seller' },
-  ];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const stats = [
-    { label: 'Total Products', value: '892', color: '#1976d2' },
-    { label: 'Active Products', value: '845', color: '#4caf50' },
-    { label: 'Low Stock', value: '23', color: '#f57c00' },
-    { label: 'Out of Stock', value: '12', color: '#f44336' },
-  ];
+  useEffect(() => {
+    fetch(`${API_URL}/products`)
+      .then(res => {
+        if (!res.ok) throw new Error('Erreur API');
+        return res.json();
+      })
+      .then(res => {
+        // Adapte si JSON = { products: [...] }
+        setProducts(Array.isArray(res) ? res : res.products || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div>Chargement…</div>;
+  if (error) return <div style={{color:'red'}}>Erreur : {error}</div>;
 
   return (
     <DashboardLayout>
