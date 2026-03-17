@@ -29,9 +29,14 @@ import {
   Assessment as ReportsIcon,
   Settings as SettingsIcon,
   Palette as CustomIcon,
+  Security as AdminIcon,
+  SupervisorAccount as UsersIcon,
+  Category as ProductManagementIcon,
+  Business as MerchantsIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { DRAWER_WIDTH } from './constants';
+import { isAdmin } from '../utils/authUtils';
 
 const menuItems = [
   { text: 'Dashboard', icon: TrendingUpIcon, path: '/dashboard/overview' },
@@ -44,8 +49,17 @@ const menuItems = [
   { text: 'Settings', icon: SettingsIcon, path: '/dashboard/settings' },
 ];
 
+const adminMenuItems = [
+  { text: 'Admin Overview', icon: AdminIcon, path: '/dashboard/admin' },
+  { text: 'Order Approvals', icon: OrdersIcon, path: '/dashboard/admin/orders' },
+  { text: 'User Management', icon: UsersIcon, path: '/dashboard/admin/users' },
+  { text: 'Product Approval', icon: ProductManagementIcon, path: '/dashboard/admin/products' },
+  { text: 'Merchant Verification', icon: MerchantsIcon, path: '/dashboard/admin/merchants' },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
+  const isAdminUser = isAdmin();
 
   return (
     <Drawer
@@ -126,6 +140,71 @@ export default function Sidebar() {
             );
           })}
         </List>
+
+        {isAdminUser && (
+          <>
+            <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)', my: 1 }} />
+            <Typography 
+              variant="caption" 
+              sx={{ 
+                display: 'block',
+                px: 2,
+                py: 1,
+                color: 'rgba(255, 255, 255, 0.6)',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                fontSize: '0.7rem',
+                letterSpacing: '0.5px'
+              }}
+            >
+              Admin
+            </Typography>
+            <List>
+              {adminMenuItems.map((item) => {
+                const isActive = pathname === item.path;
+                const IconComponent = item.icon;
+                
+                return (
+                  <ListItem key={item.text} disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      href={item.path}
+                      sx={{
+                        py: 1.5,
+                        px: 2,
+                        backgroundColor: isActive ? 'rgba(25, 118, 210, 0.15)' : 'transparent',
+                        borderRight: isActive ? '3px solid #1976d2' : 'none',
+                        '&:hover': {
+                          backgroundColor: isActive 
+                            ? 'rgba(25, 118, 210, 0.25)' 
+                            : 'rgba(255, 255, 255, 0.08)',
+                        },
+                      }}
+                    >
+                      <ListItemIcon>
+                        <IconComponent 
+                          sx={{ 
+                            color: isActive ? '#1976d2' : '#ffffff',
+                            fontSize: 24,
+                          }} 
+                        />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary={item.text}
+                        primaryTypographyProps={{
+                          sx: {
+                            color: isActive ? '#1976d2' : '#ffffff',
+                            fontWeight: isActive ? 600 : 400,
+                          }
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
+            </List>
+          </>
+        )}
       </Box>
     </Drawer>
   );

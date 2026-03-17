@@ -1,13 +1,59 @@
-'use client';
+"use client";
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Box, Container, Paper, Typography, TextField, Button } from '@mui/material';
 import { LockOutlined as LockIcon } from '@mui/icons-material';
+import { apiPost, apiGet } from '../utils/api';
 
 /**
  * Index Page - Login/Home
  * Entry point for the merchant dashboard
  */
 export default function Home() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await apiPost('/auth/login', { email, password });
+      if (res && res.access_token) {
+        localStorage.setItem('access_token', res.access_token);
+        
+        // Fetch user profile to get role and other info
+        try {
+          const userRes = await apiGet('/auth/me');
+          if (userRes) {
+            localStorage.setItem('user', JSON.stringify({
+              id: userRes.id,
+              email: userRes.email,
+              role: userRes.role,
+              age: userRes.age,
+              preferences: userRes.preferences,
+              good_rate: userRes.good_rate,
+            }));
+          }
+        } catch (err) {
+          console.warn('Could not fetch user profile, but login succeeded', err);
+          // Still redirect even if profile fetch fails
+        }
+        
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      console.error('Login failed', err);
+      setError(err.message || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <Container component="main" maxWidth="xs">
       <Box
@@ -43,7 +89,12 @@ export default function Home() {
             Alia Merchant Dashboard
           </Typography>
           
-          <Box component="form" sx={{ width: '100%' }}>
+          <Box component="form" sx={{ width: '100%' }} onSubmit={handleSubmit}>
+            {error && (
+              <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+                {error}
+              </Typography>
+            )}
             <TextField
               margin="normal"
               required
@@ -51,6 +102,8 @@ export default function Home() {
               id="email"
               label="Email"
               name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
               autoFocus
             />
@@ -62,6 +115,8 @@ export default function Home() {
               label="Password"
               type="password"
               id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
             />
             <Button
@@ -69,9 +124,9 @@ export default function Home() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              href="/dashboard"
+              disabled={loading}
             >
-              Sign In
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </Box>
         </Paper>

@@ -3,8 +3,10 @@
  * Main Dashboard with comprehensive KPIs, charts, and tables
  */
 
-'use client';
+"use client";
 
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Box, Typography, Grid } from '@mui/material';
 import {
   AttachMoney as RevenueIcon,
@@ -32,8 +34,34 @@ import {
   salesZones,
 } from '@/data/mockData';
 import { formatCurrency } from '@/utils/helpers';
+import { apiGet } from '@/utils/api';
 
 export default function OverviewPage() {
+  const router = useRouter();
+  const [overview, setOverview] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadOverview() {
+      try {
+        const data = await apiGet('/merchants/me/dashboard-overview');
+        if (mounted) setOverview(data);
+      } catch (err) {
+        console.error('Failed to load dashboard overview', err);
+        // If unauthorized, clear token and redirect to login
+        if (err && err.message && err.message.includes('401')) {
+          try { localStorage.removeItem('access_token'); } catch (e) {}
+          router.push('/');
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    loadOverview();
+    return () => { mounted = false; };
+  }, [router]);
   // Table columns
   const orderColumns = [
     { field: 'id', headerName: 'Order ID' },
@@ -71,19 +99,19 @@ export default function OverviewPage() {
         {/* KPI Cards */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid item xs={12} sm={6} md={4}>
-            <KPICard
-              title="Total Revenue"
-              value={formatCurrency(kpiData.revenue.value)}
-              change={kpiData.revenue.change}
-              period={kpiData.revenue.period}
-              icon={RevenueIcon}
-              color="#1976d2"
-            />
+              <KPICard
+                title="Total Revenue"
+                value={loading ? '—' : formatCurrency(overview?.total_sales ?? 0)}
+                change={kpiData.revenue.change}
+                period={kpiData.revenue.period}
+                icon={RevenueIcon}
+                color="#1976d2"
+              />
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <KPICard
               title="Total Orders"
-              value={kpiData.orders.value.toLocaleString()}
+              value={loading ? '—' : (overview?.orders_count ?? 0).toLocaleString()}
               change={kpiData.orders.change}
               period={kpiData.orders.period}
               icon={OrdersIcon}
@@ -92,8 +120,8 @@ export default function OverviewPage() {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <KPICard
-              title="Total Customers"
-              value={kpiData.customers.value.toLocaleString()}
+              title="New Customers"
+              value={loading ? '—' : (overview?.new_customers ?? 0).toLocaleString()}
               change={kpiData.customers.change}
               period={kpiData.customers.period}
               icon={CustomersIcon}
@@ -102,8 +130,8 @@ export default function OverviewPage() {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <KPICard
-              title="Active Sellers"
-              value={kpiData.sellers.value}
+              title="Products In Stock"
+              value={loading ? '—' : (overview?.products_in_stock ?? 0)}
               change={kpiData.sellers.change}
               period={kpiData.sellers.period}
               icon={SellersIcon}
@@ -123,7 +151,7 @@ export default function OverviewPage() {
           <Grid item xs={12} sm={6} md={4}>
             <KPICard
               title="Low Stock Alert"
-              value={kpiData.lowStock.value}
+              value={loading ? '—' : (overview?.low_stock ?? 0)}
               change={kpiData.lowStock.change}
               period={kpiData.lowStock.period}
               icon={WarningIcon}

@@ -3,103 +3,61 @@
  * Displays and manages all orders
  */
 
-'use client';
+"use client";
 
-import { Box, Typography, Button, Grid, Card, CardContent } from '@mui/material';
-import { GetApp as ExportIcon, ShoppingCart as OrderIcon } from '@mui/icons-material';
-import DashboardLayout from '@/layout/DashboardLayout';
-import DataTable from '@/components/tables/DataTable';
-import { orders } from '@/data/mockData';
+import React, { useEffect, useState } from "react";
+import OrderRow from "./components/OrderRow";
+import * as adminApi from "../../../../utils/adminApi";
 
-export default function OrdersPage() {
-  const columns = [
-    { field: 'id', headerName: 'Order ID' },
-    { field: 'sku', headerName: 'SKU' },
-    { field: 'customer', headerName: 'Customer' },
-    { field: 'product', headerName: 'Product' },
-    { field: 'amount', headerName: 'Amount', type: 'currency' },
-    { field: 'status', headerName: 'Status', type: 'status' },
-    { field: 'date', headerName: 'Date' },
-  ];
+export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const stats = [
-    { label: 'Total Orders', value: '1,543', color: '#1976d2' },
-    { label: 'Completed', value: '1,245', color: '#4caf50' },
-    { label: 'Processing', value: '156', color: '#ff9800' },
-    { label: 'Pending', value: '142', color: '#f44336' },
-  ];
-
-  const handleExport = () => {
-    // Proper CSV escaping
-    const escapeCSVValue = (value) => {
-      if (value == null) return '';
-      const stringValue = String(value);
-      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-        return `"${stringValue.replace(/"/g, '""')}"`;
-      }
-      return stringValue;
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    adminApi
+      .listOrders()
+      .then((data) => {
+        if (!mounted) return;
+        setOrders(data || []);
+      })
+      .catch((err) => {
+        setError(err?.message || "Failed to load orders");
+      })
+      .finally(() => mounted && setLoading(false));
+    return () => {
+      mounted = false;
     };
+  }, []);
 
-    const csvContent = orders.map(order => 
-      [order.id, order.sku, order.customer, order.product, order.amount, order.status, order.date]
-        .map(escapeCSVValue).join(',')
-    ).join('\n');
-    
-    const header = 'Order ID,SKU,Customer,Product,Amount,Status,Date\n';
-    const blob = new Blob([header + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'orders-export.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
+  const removeOrUpdate = (orderId, updated) => {
+    setOrders((prev) => prev?.map((o) => (o._id === orderId ? { ...o, ...updated } : o)));
   };
 
+  if (loading) return <div>Loading orders…</div>;
+  if (error) return <div style={{ color: "red" }}>{error}</div>;
+  if (!orders || orders.length === 0) return <div>No orders found.</div>;
+
   return (
-    <DashboardLayout>
-      <Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" sx={{ fontWeight: 600 }}>
-            Orders
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<ExportIcon />}
-            sx={{ textTransform: 'none' }}
-            onClick={handleExport}
-          >
-            Export CSV
-          </Button>
-        </Box>
-
-        {/* Stats Cards */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          {stats.map((stat, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <OrderIcon sx={{ mr: 1, color: stat.color }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {stat.label}
-                    </Typography>
-                  </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, color: stat.color }}>
-                    {stat.value}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+    <div>
+      <h1>Orders</h1>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            <th style={{ textAlign: "left", padding: 8 }}>Order</th>
+            <th style={{ textAlign: "left", padding: 8 }}>Status</th>
+            <th style={{ textAlign: "left", padding: 8 }}>Total</th>
+            <th style={{ textAlign: "left", padding: 8 }}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders.map((order) => (
+            <OrderRow key={order._id} order={order} onUpdate={(u) => removeOrUpdate(order._id, u)} />
           ))}
-        </Grid>
-
-        {/* Orders Table */}
-        <DataTable
-          title="All Orders"
-          columns={columns}
-          data={orders}
-        />
-      </Box>
-    </DashboardLayout>
+        </tbody>
+      </table>
+    </div>
   );
 }
