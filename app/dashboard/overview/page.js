@@ -5,7 +5,7 @@
 
 'use client';
 
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography, Grid, CircularProgress } from '@mui/material';
 import {
   AttachMoney as RevenueIcon,
   ShoppingCart as OrdersIcon,
@@ -14,52 +14,167 @@ import {
   Inventory as ProductsIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/layout/DashboardLayout';
 import KPICard from '@/components/cards/KPICard';
 import LineChart from '@/components/charts/LineChart';
 import DonutChart from '@/components/charts/DonutChart';
 import SalesHeatmap from '@/components/charts/SalesHeatmap';
-import SalesMapWidget from '@/components/charts/SalesMapWidget';
 import DataTable from '@/components/tables/DataTable';
-import {
-  kpiData,
-  recentOrders,
-  bestSellers,
-  topCustomers,
-  salesChartData,
-  categoryDistribution,
-  heatmapData,
-  salesZones,
-} from '@/data/mockData';
+import { apiGet } from '@/utils/api';
 import { formatCurrency } from '@/utils/helpers';
 
+// Fallback data structures for charts
+const createEmptyLineChart = () => ({
+  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  datasets: [{
+    label: 'Sales',
+    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    borderColor: '#1976d2',
+    backgroundColor: 'rgba(25, 118, 210, 0.1)',
+  }],
+});
+
+const createEmptyDonutChart = () => ({
+  labels: ['Category A', 'Category B', 'Category C'],
+  datasets: [{
+    data: [0, 0, 0],
+    backgroundColor: ['#1976d2', '#42a5f5', '#64b5f6'],
+  }],
+});
+
 export default function OverviewPage() {
-  // Table columns
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [kpiData, setKpiData] = useState({
+    revenue: { value: 0, change: 0, period: 'vs last month' },
+    orders: { value: 0, change: 0, period: 'vs last month' },
+    customers: { value: 0, change: 0, period: 'vs last month' },
+    sellers: { value: 0, change: 0, period: 'vs last month' },
+    products: { value: 0, change: 0, period: 'total active' },
+    lowStock: { value: 0, change: 0, period: 'products' },
+  });
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [salesChartData, setSalesChartData] = useState(createEmptyLineChart());
+  const [categoryDistribution, setCategoryDistribution] = useState(createEmptyDonutChart());
+  const [heatmapData, setHeatmapData] = useState([]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch multiple endpoints in parallel
+        const [dashboardData, ordersData, productsData] = await Promise.all([
+          apiGet('/merchants/me/dashboard-overview').catch(() => ({})),
+          apiGet('/merchants/me/orders').catch(() => ({ orders: [] })),
+          apiGet('/products').catch(() => ([])),
+        ]);
+
+        // Extract orders
+        const orders = dashboardData.orders || ordersData.orders || [];
+        setRecentOrders(orders.slice(0, 5));
+
+        // Extract and process products
+        const products = Array.isArray(productsData) ? productsData : productsData.products || [];
+        setAllProducts(products);
+
+        // Calculate KPIs
+        const totalRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+        const totalOrders = orders.length;
+        const totalProducts = products.length;
+        const lowStockCount = products.filter(p => p.stock > 0 && p.stock < 10).length;
+
+        setKpiData({
+          revenue: { value: totalRevenue, change: 0, period: 'total' },
+          orders: { value: totalOrders, change: 0, period: 'total' },
+          customers: { value: 0, change: 0, period: 'vs last month' },
+          sellers: { value: 0, change: 0, period: 'vs last month' },
+          products: { value: totalProducts, change: 0, period: 'total active' },
+          lowStock: { value: lowStockCount, change: 0, period: 'products' },
+        });
+
+        // Build category distribution chart
+        const categoryCounts = {};
+        products.forEach(p => {
+          categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1;
+        });
+        const categories = Object.keys(categoryCounts).slice(0, 5);
+        setCategoryDistribution({
+          labels: categories,
+          datasets: [{
+            data: categories.map(c => categoryCounts[c]),
+            backgroundColor: ['#1976d2', '#42a5f5', '#64b5f6', '#90caf9', '#bbdefb'],
+          }],
+        });
+
+        // Build sales chart data from orders (by month)
+        const monthlySales = {};
+        orders.forEach(o => {
+          const date = new Date(o.created_at);
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          monthlySales[monthKey] = (monthlySales[monthKey] || 0) + (o.total_amount || 0);
+        });
+
+        const months = Object.keys(monthlySales).sort().slice(-12);
+        setSalesChartData({
+          labels: months.map(m => m.split('-')[1]),
+          datasets: [{
+            label: 'Sales',
+            data: months.map(m => monthlySales[m]),
+            borderColor: '#1976d2',
+            backgroundColor: 'rgba(25, 118, 210, 0.1)',
+          }],
+        });
+
+        setError(null);
+      } catch (err) {
+        console.error('Dashboard fetch error:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
   const orderColumns = [
     { field: 'id', headerName: 'Order ID' },
-    { field: 'sku', headerName: 'SKU' },
-    { field: 'customer', headerName: 'Customer' },
-    { field: 'amount', headerName: 'Amount', type: 'currency' },
+    { field: 'user_id', headerName: 'User' },
+    { field: 'total_amount', headerName: 'Amount', type: 'currency' },
     { field: 'status', headerName: 'Status', type: 'status' },
-    { field: 'date', headerName: 'Date' },
+    { field: 'created_at', headerName: 'Date' },
   ];
 
-  const bestSellerColumns = [
-    { field: 'rank', headerName: 'Rank' },
+  const productColumns = [
     { field: 'sku', headerName: 'SKU' },
-    { field: 'name', headerName: 'Product' },
+    { field: 'title', headerName: 'Product' },
     { field: 'category', headerName: 'Category' },
-    { field: 'sales', headerName: 'Sales', type: 'number' },
-    { field: 'revenue', headerName: 'Revenue', type: 'currency' },
+    { field: 'price', headerName: 'Price', type: 'currency' },
+    { field: 'stock', headerName: 'Stock', type: 'number' },
   ];
 
-  const customerColumns = [
-    { field: 'name', headerName: 'Customer' },
-    { field: 'email', headerName: 'Email' },
-    { field: 'orders', headerName: 'Orders', type: 'number' },
-    { field: 'totalSpent', headerName: 'Total Spent', type: 'currency' },
-    { field: 'status', headerName: 'Status', type: 'status' },
-  ];
+  if (error) {
+    return (
+      <DashboardLayout>
+        <Box sx={{ p: 2, bgcolor: '#ffebee', borderRadius: 1, color: '#c62828' }}>
+          <Typography>Error loading dashboard: {error}</Typography>
+        </Box>
+      </DashboardLayout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+          <CircularProgress />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -92,26 +207,6 @@ export default function OverviewPage() {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <KPICard
-              title="Total Customers"
-              value={kpiData.customers.value.toLocaleString()}
-              change={kpiData.customers.change}
-              period={kpiData.customers.period}
-              icon={CustomersIcon}
-              color="#1565c0"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <KPICard
-              title="Active Sellers"
-              value={kpiData.sellers.value}
-              change={kpiData.sellers.change}
-              period={kpiData.sellers.period}
-              icon={SellersIcon}
-              color="#64b5f6"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <KPICard
               title="Total Products"
               value={kpiData.products.value}
               change={kpiData.products.change}
@@ -135,24 +230,10 @@ export default function OverviewPage() {
         {/* Charts Row */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid item xs={12} md={8}>
-            <LineChart title="Sales Trend (Last 12 Months)" data={salesChartData} height={300} />
+            <LineChart title="Sales Trend" data={salesChartData} height={300} />
           </Grid>
           <Grid item xs={12} md={4}>
             <DonutChart title="Category Distribution" data={categoryDistribution} />
-          </Grid>
-        </Grid>
-
-        {/* Sales Heatmap - PRESERVED FROM EXISTING */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12}>
-            <SalesHeatmap title="Sales Activity Heatmap" data={heatmapData} />
-          </Grid>
-        </Grid>
-
-        {/* Sales Map Widget - NEW FEATURE */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12}>
-            <SalesMapWidget title="Zones de Vente par Région" data={salesZones} />
           </Grid>
         </Grid>
 
@@ -162,24 +243,17 @@ export default function OverviewPage() {
             <DataTable
               title="Recent Orders"
               columns={orderColumns}
-              data={recentOrders.slice(0, 5)}
+              data={recentOrders}
             />
           </Grid>
         </Grid>
 
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12}>
             <DataTable
-              title="Best Sellers"
-              columns={bestSellerColumns}
-              data={bestSellers.slice(0, 5)}
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <DataTable
-              title="Top Customers"
-              columns={customerColumns}
-              data={topCustomers.slice(0, 5)}
+              title="Products"
+              columns={productColumns}
+              data={allProducts.slice(0, 5)}
             />
           </Grid>
         </Grid>

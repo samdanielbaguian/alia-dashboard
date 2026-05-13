@@ -6,12 +6,21 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import { DRAWER_WIDTH } from './constants';
 
 export default function DashboardLayout({ children }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <Header />

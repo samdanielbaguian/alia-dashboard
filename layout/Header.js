@@ -1,11 +1,7 @@
-/**
- * Header Component
- * Elegant top navigation bar for the merchant dashboard
- * White background with blue accents
- */
-
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   AppBar, 
   Toolbar, 
@@ -13,14 +9,53 @@ import {
   IconButton, 
   Box,
   Avatar,
-  Badge 
+  Badge,
+  Menu,
+  MenuItem,
+  Divider,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
   Settings as SettingsIcon,
+  Logout as LogoutIcon,
 } from '@mui/icons-material';
+import { getAuthUser, removeAuthToken } from '@/utils/api';
 
 export default function Header() {
+  const router = useRouter();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const user = getAuthUser();
+  const userInitial = user?.email?.[0]?.toUpperCase() || 'U';
+
+  useEffect(() => {
+    try {
+      setUserRole(user?.role || user?.type || 'user');
+    } catch (err) {
+      console.error('Failed to get user role:', err);
+    }
+  }, [user]);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    removeAuthToken();
+    handleMenuClose();
+    router.push('/login');
+  };
+
+  const pageTitle = userRole === 'merchant' 
+    ? 'Merchant Dashboard' 
+    : userRole === 'customer'
+    ? 'Customer Dashboard'
+    : 'Dashboard';
+
   return (
     <AppBar 
       position="fixed" 
@@ -41,11 +76,10 @@ export default function Header() {
             color: '#000000',
           }}
         >
-          Merchant Dashboard
+          {pageTitle}
         </Typography>
         
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {/* Notifications */}
           <IconButton 
             color="inherit"
             sx={{
@@ -61,7 +95,6 @@ export default function Header() {
             </Badge>
           </IconButton>
           
-          {/* Settings */}
           <IconButton 
             color="inherit"
             sx={{
@@ -75,8 +108,8 @@ export default function Header() {
             <SettingsIcon />
           </IconButton>
           
-          {/* User Avatar - Placeholder */}
           <Box 
+            onClick={handleMenuOpen}
             sx={{ 
               ml: 2,
               display: 'flex',
@@ -98,13 +131,38 @@ export default function Header() {
                 fontSize: '0.875rem',
               }}
             >
-              M
+              {userInitial}
             </Avatar>
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              Merchant
+              {user?.role || 'Merchant'}
             </Typography>
           </Box>
         </Box>
+
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <MenuItem disabled>
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              {user?.email || 'User'}
+            </Typography>
+          </MenuItem>
+          <Divider />
+          <MenuItem onClick={handleLogout}>
+            <LogoutIcon sx={{ mr: 1 }} />
+            Logout
+          </MenuItem>
+        </Menu>
       </Toolbar>
     </AppBar>
   );
