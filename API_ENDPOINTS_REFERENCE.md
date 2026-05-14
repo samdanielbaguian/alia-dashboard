@@ -1,4 +1,5 @@
 # API Endpoints Reference
+<!-- markdownlint-disable MD040 MD060 MD034 MD032 MD022 MD031 MD024 -->
 
 This document lists all API endpoints used by the restructured dashboard.
 
