@@ -193,7 +193,7 @@ export default function ReportsPage() {
         {/* Report Stats */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
           {reportStats.map((stat, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
               <Card>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -216,14 +216,14 @@ export default function ReportsPage() {
 
         {/* Charts */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <LineChart 
               title="Revenue Trend Analysis" 
               data={chartData.sales.length > 0 ? chartData.sales : []} 
               height={350} 
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <DonutChart 
               title="Top Products by Revenue" 
               data={chartData.categories.length > 0 ? chartData.categories : []} 
@@ -233,7 +233,7 @@ export default function ReportsPage() {
 
         {/* Top Products Table */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
@@ -268,7 +268,7 @@ export default function ReportsPage() {
 
         {/* Heatmap */}
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <SalesHeatmap 
               title="Sales Activity Pattern" 
               data={chartData.heatmap.length > 0 ? chartData.heatmap : []} 

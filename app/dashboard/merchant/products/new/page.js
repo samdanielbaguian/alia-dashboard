@@ -144,7 +144,7 @@ export default function NewProduct() {
 
       <Grid container spacing={3}>
         {/* Left Column */}
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           {/* Section 1: Informations */}
           <Card sx={{ borderRadius: 3, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', mb: 3 }}>
             <CardContent sx={{ p: 3 }}>
@@ -152,7 +152,7 @@ export default function NewProduct() {
                 <Info sx={{ color: '#1976d2' }} /> Informations générales
               </Typography>
               <Grid container spacing={2.5}>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField fullWidth label="Titre du produit *" value={form.title}
                     onChange={handleChange('title')} error={Boolean(errors.title)} helperText={errors.title}
                     placeholder="Ex: Smartphone Samsung Galaxy S24 128Go Noir"
@@ -161,14 +161,14 @@ export default function NewProduct() {
                     InputProps={{ endAdornment: <InputAdornment position="end"><Typography variant="caption" sx={{ color: '#b0b0b0' }}>{form.title.length}/200</Typography></InputAdornment> }}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField fullWidth multiline rows={4} label="Description *" value={form.description}
                     onChange={handleChange('description')} error={Boolean(errors.description)} helperText={errors.description}
                     placeholder="Décrivez votre produit en détail : caractéristiques, dimensions, matériaux..."
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth error={Boolean(errors.category)}>
                     <InputLabel>Catégorie *</InputLabel>
                     <Select value={form.category} onChange={handleChange('category')} label="Catégorie *" sx={{ borderRadius: 2 }}>
@@ -177,12 +177,12 @@ export default function NewProduct() {
                     {errors.category && <Typography variant="caption" sx={{ color: '#f44336', ml: 1.5, mt: 0.3 }}>{errors.category}</Typography>}
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Marque" value={form.brand} onChange={handleChange('brand')}
                     placeholder="Samsung, Apple, Nike..."
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth>
                     <InputLabel>État du produit</InputLabel>
                     <Select value={form.condition} onChange={handleChange('condition')} label="État du produit" sx={{ borderRadius: 2 }}>
@@ -190,7 +190,7 @@ export default function NewProduct() {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Référence / SKU" value={form.sku} onChange={handleChange('sku')}
                     placeholder="SKU-12345"
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
@@ -206,7 +206,7 @@ export default function NewProduct() {
                 <Euro sx={{ color: '#4caf50' }} /> Prix et Stock
               </Typography>
               <Grid container spacing={2.5}>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Prix de vente (XOF) *" type="number" value={form.price}
                     onChange={handleChange('price')} error={Boolean(errors.price)} helperText={errors.price}
                     InputProps={{ startAdornment: <InputAdornment position="start">XOF</InputAdornment> }}
@@ -214,7 +214,7 @@ export default function NewProduct() {
                     inputProps={{ min: 0, step: 100 }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Prix original / Barré (XOF)" type="number" value={form.original_price}
                     onChange={handleChange('original_price')}
                     InputProps={{ startAdornment: <InputAdornment position="start">XOF</InputAdornment> }}
@@ -224,7 +224,7 @@ export default function NewProduct() {
                     FormHelperTextProps={{ sx: { color: '#4caf50', fontWeight: 600 } }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Quantité en stock *" type="number" value={form.stock_quantity}
                     onChange={handleChange('stock_quantity')} error={Boolean(errors.stock_quantity)} helperText={errors.stock_quantity}
                     InputProps={{ startAdornment: <InputAdornment position="start"><Inventory sx={{ fontSize: 18, color: '#7f8c8d' }} /></InputAdornment> }}
@@ -232,7 +232,7 @@ export default function NewProduct() {
                     inputProps={{ min: 0, step: 1 }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Poids (kg)" type="number" value={form.weight}
                     onChange={handleChange('weight')}
                     InputProps={{ endAdornment: <InputAdornment position="end">kg</InputAdornment> }}
@@ -240,14 +240,14 @@ export default function NewProduct() {
                     inputProps={{ min: 0, step: 0.1 }}
                   />
                 </Grid>
-                <Grid item xs={6} sm={3}>
+                <Grid size={{ xs: 6, sm: 3 }}>
                   <TextField fullWidth label="Qté min commande" type="number" value={form.min_order_quantity}
                     onChange={handleChange('min_order_quantity')}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                     inputProps={{ min: 1 }}
                   />
                 </Grid>
-                <Grid item xs={6} sm={3}>
+                <Grid size={{ xs: 6, sm: 3 }}>
                   <TextField fullWidth label="Qté max commande" type="number" value={form.max_order_quantity}
                     onChange={handleChange('max_order_quantity')} placeholder="Illimité"
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
@@ -256,7 +256,7 @@ export default function NewProduct() {
                 </Grid>
                 {/* Price preview */}
                 {priceNum > 0 && (
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Box sx={{ p: 2, bgcolor: '#f0f7ff', borderRadius: 2, border: '1px solid #e3f2fd' }}>
                       <Typography variant="body2" sx={{ color: '#1976d2', fontWeight: 600 }}>
                         Prix affiché : {priceNum.toLocaleString('fr-FR')} XOF
@@ -276,7 +276,7 @@ export default function NewProduct() {
                 <LocalShipping sx={{ color: '#9c27b0' }} /> Livraison
               </Typography>
               <Grid container spacing={2.5}>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Frais de livraison (XOF)" type="number" value={form.shipping_fee}
                     onChange={handleChange('shipping_fee')}
                     InputProps={{ startAdornment: <InputAdornment position="start">XOF</InputAdornment> }}
@@ -285,7 +285,7 @@ export default function NewProduct() {
                     inputProps={{ min: 0, step: 100 }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Délai de livraison" value={form.shipping_delay}
                     onChange={handleChange('shipping_delay')}
                     placeholder="3-5"
@@ -326,7 +326,7 @@ export default function NewProduct() {
         </Grid>
 
         {/* Right Column */}
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           {/* Images */}
           <Card sx={{ borderRadius: 3, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', mb: 3 }}>
             <CardContent sx={{ p: 3 }}>
@@ -359,7 +359,7 @@ export default function NewProduct() {
               {imagePreviews.length > 0 && (
                 <Grid container spacing={1}>
                   {imagePreviews.map((src, i) => (
-                    <Grid item xs={4} key={i}>
+                    <Grid size={{ xs: 4 }} key={i}>
                       <Box sx={{ position: 'relative', borderRadius: 2, overflow: 'hidden', aspectRatio: '1' }}>
                         <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         {i === 0 && <Chip label="Principale" size="small" sx={{ position: 'absolute', top: 4, left: 4, bgcolor: 'rgba(25,118,210,0.9)', color: '#fff', fontSize: '0.6rem', height: 16 }} />}
@@ -371,7 +371,7 @@ export default function NewProduct() {
                     </Grid>
                   ))}
                   {imagePreviews.length < 5 && (
-                    <Grid item xs={4}>
+                    <Grid size={{ xs: 4 }}>
                       <Box onClick={() => fileInputRef.current?.click()} sx={{
                         aspectRatio: '1', border: '2px dashed rgba(0,0,0,0.12)', borderRadius: 2,
                         display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',

@@ -14,6 +14,7 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import MerchantSidebar from './MerchantSidebar';
 
@@ -30,7 +31,15 @@ export default function MerchantDashboardLayout({ children, title = 'Dashboard' 
 
   useEffect(() => {
     setMounted(true);
+    const saved = localStorage.getItem('merchantSidebarCollapsed');
+    if (saved !== null) setCollapsed(JSON.parse(saved));
   }, []);
+
+  const handleToggle = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    localStorage.setItem('merchantSidebarCollapsed', JSON.stringify(next));
+  };
 
   useEffect(() => {
     if (!loading && mounted) {
@@ -56,7 +65,7 @@ export default function MerchantDashboardLayout({ children, title = 'Dashboard' 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', background: '#f5f7fa' }}>
       {/* Sidebar */}
-      <MerchantSidebar collapsed={collapsed} onToggle={() => setCollapsed(c => !c)} />
+      <MerchantSidebar collapsed={collapsed} onToggle={handleToggle} />
 
       {/* Main area */}
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, ml: `${sideWidth}px`, transition: 'margin-left 0.3s ease', minWidth: 0 }}>
@@ -74,6 +83,20 @@ export default function MerchantDashboardLayout({ children, title = 'Dashboard' 
           }}
         >
           <Toolbar sx={{ gap: 2, minHeight: 64 }}>
+            {/* Logo icône */}
+            <Box
+              component="a"
+              href="/"
+              sx={{ display: 'flex', alignItems: 'center', mr: 1, textDecoration: 'none', flexShrink: 0 }}
+            >
+              <Image
+                src="/icons/icons.png"
+                alt="Alia"
+                width={32}
+                height={32}
+                style={{ objectFit: 'contain' }}
+              />
+            </Box>
             {/* Breadcrumb / Title */}
             <Box sx={{ flexGrow: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', fontSize: '1.1rem' }}>
@@ -150,7 +173,7 @@ export default function MerchantDashboardLayout({ children, title = 'Dashboard' 
         </AppBar>
 
         {/* Page content */}
-        <Box component="main" sx={{ flexGrow: 1, pt: '64px', p: 3, minWidth: 0 }}>
+        <Box component="main" sx={{ flexGrow: 1, mt: '64px', p: 3, minWidth: 0 }}>
           {children}
         </Box>
       </Box>

@@ -168,7 +168,7 @@ export default function CustomersPage() {
         {/* Stats Cards */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
           {statsList.map((stat, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
               <Card>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>

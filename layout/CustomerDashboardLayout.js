@@ -13,6 +13,7 @@ import {
   Favorite as WishlistIcon,
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import CustomerSidebar, { DRAWER_WIDTH } from './CustomerSidebar';
 
@@ -26,7 +27,17 @@ export default function CustomerDashboardLayout({ children, title = 'Mon espace'
   const router = useRouter();
   const { user, isBuyer, loading, logout } = useAuth();
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    const saved = localStorage.getItem('customerSidebarCollapsed');
+    if (saved !== null) setCollapsed(JSON.parse(saved));
+  }, []);
+
+  const handleToggle = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    localStorage.setItem('customerSidebarCollapsed', JSON.stringify(next));
+  };
 
   useEffect(() => {
     if (!loading && mounted) {
@@ -61,7 +72,7 @@ export default function CustomerDashboardLayout({ children, title = 'Mon espace'
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', background: '#f0f4ff' }}>
-      <CustomerSidebar collapsed={collapsed} onToggle={() => setCollapsed(c => !c)} />
+      <CustomerSidebar collapsed={collapsed} onToggle={handleToggle} />
 
       {/* ── AppBar ── */}
       <AppBar
@@ -76,6 +87,20 @@ export default function CustomerDashboardLayout({ children, title = 'Mon espace'
         }}
       >
         <Toolbar sx={{ minHeight: 64, gap: 2 }}>
+          {/* Logo icône */}
+          <Box
+            component="a"
+            href="/"
+            sx={{ display: 'flex', alignItems: 'center', mr: 0.5, textDecoration: 'none', flexShrink: 0 }}
+          >
+            <Image
+              src="/icons/icons.png"
+              alt="Alia"
+              width={32}
+              height={32}
+              style={{ objectFit: 'contain' }}
+            />
+          </Box>
           <Typography variant="h6" sx={{ fontWeight: 700, color: '#1e1b4b', flexShrink: 0 }}>
             {title}
           </Typography>

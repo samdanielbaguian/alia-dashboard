@@ -7,10 +7,11 @@ import { getAuthToken } from '@/utils/api';
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const token = getAuthToken();
     
     if (!token) {
@@ -18,11 +19,10 @@ export default function DashboardLayout({ children }) {
     } else {
       setIsAuthenticated(true);
     }
-    
-    setIsLoading(false);
   }, [router]);
 
-  if (isLoading) {
+  // Affiche le loader pendant que le client hydrate et vérifie l'authentification
+  if (!isMounted || isAuthenticated === null) {
     return (
       <Box
         sx={{
@@ -30,6 +30,7 @@ export default function DashboardLayout({ children }) {
           justifyContent: 'center',
           alignItems: 'center',
           minHeight: '100vh',
+          bgcolor: 'background.default',
         }}
       >
         <CircularProgress />

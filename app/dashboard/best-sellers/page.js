@@ -105,7 +105,7 @@ export default function BestSellersPage() {
         {/* Top Stats */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
           {topStats.map((stat, index) => (
-            <Grid item xs={12} sm={4} key={index}>
+            <Grid size={{ xs: 12, sm: 4 }} key={index}>
               <Card>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>

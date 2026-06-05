@@ -41,6 +41,11 @@ function LayoutContent({ children }) {
 export default function RootLayout({ children }) {
   return (
     <html lang="fr">
+      <head>
+        <link rel="icon" type="image/png" href="/icons/icons.png" />
+        <link rel="shortcut icon" type="image/png" href="/icons/icons.png" />
+        <link rel="apple-touch-icon" href="/icons/icons.png" />
+      </head>
       <body>
         <ThemeProvider>
           <LayoutContent>{children}</LayoutContent>

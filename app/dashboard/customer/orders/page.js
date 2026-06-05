@@ -6,7 +6,7 @@ import {
   Box, Typography, Card, Chip, Button, IconButton, TextField,
   Select, MenuItem, FormControl, InputLabel, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, Tooltip,
-  Skeleton, Pagination, InputAdornment, Alert,
+  Skeleton, Pagination, InputAdornment, Alert, Grid, CardContent,
 } from '@mui/material';
 import {
   Search, FilterList, Visibility, Cancel, Download,
@@ -118,6 +118,27 @@ export default function OrdersPage() {
           Exporter CSV
         </Button>
       </Box>
+
+      {/* KPI Cards */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        {[
+          { label: 'Total commandes', value: total,                                              color: '#3b82f6', bg: 'rgba(59,130,246,0.08)'  },
+          { label: 'En attente',      value: orders.filter(o => o.status === 'pending').length,   color: '#f59e0b', bg: 'rgba(245,158,11,0.08)'  },
+          { label: 'Livrées',         value: orders.filter(o => o.status === 'delivered').length, color: '#10b981', bg: 'rgba(16,185,129,0.08)'  },
+          { label: 'Annulées',        value: orders.filter(o => o.status === 'cancelled').length, color: '#ef4444', bg: 'rgba(239,68,68,0.08)'   },
+        ].map((k, i) => (
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
+            <Card sx={{ borderRadius: 3, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', bgcolor: k.bg, height: '100%' }}>
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography sx={{ color: '#6b7280', fontWeight: 600, fontSize: '0.8rem', mb: 1 }}>{k.label}</Typography>
+                {loading ? <Skeleton height={40} width="60%" /> : (
+                  <Typography sx={{ fontSize: '2rem', fontWeight: 800, color: k.color, lineHeight: 1 }}>{k.value}</Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
 
       <Card sx={{ borderRadius: 2.5, p: 2, mb: 2.5, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>

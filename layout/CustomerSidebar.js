@@ -16,7 +16,9 @@ import {
   Logout as LogoutIcon,
   ChevronLeft,
   Menu as MenuIcon,
+  Storefront as StorefrontIcon,
 } from '@mui/icons-material';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { apiGet } from '@/utils/api';
 
@@ -26,6 +28,7 @@ const DRAWER_COLLAPSED = 72;
 
 const NAV = [
   { path: '/dashboard/customer',          label: 'Dashboard',       icon: DashboardIcon },
+  { path: '/dashboard/customer/shops',    label: 'Boutiques',       icon: StorefrontIcon },
   { path: '/dashboard/customer/orders',   label: 'Mes commandes',   icon: OrdersIcon },
   { path: '/dashboard/customer/wishlist', label: 'Wishlist',        icon: WishlistIcon },
   { path: '/dashboard/customer/cart',     label: 'Panier',          icon: CartIcon, badge: true },
@@ -117,10 +120,15 @@ export default function CustomerSidebar({ collapsed, onToggle }) {
         minHeight: 72,
       }}>
         {!collapsed && (
-          <Box>
-            <Typography sx={{ fontSize: 22, fontWeight: 900, color: '#fff', letterSpacing: '-1px', lineHeight: 1 }}>
-              ALIA
-            </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <Image
+              src="/logos/logos.png"
+              alt="Alia - Logo officiel"
+              width={120}
+              height={40}
+              style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto', marginBottom: 4 }}
+              priority
+            />
             <Typography sx={{ fontSize: 8, color: 'rgba(255,255,255,0.45)', letterSpacing: '3.5px', fontWeight: 600, mt: 0.3 }}>
               ESPACE CLIENT
             </Typography>

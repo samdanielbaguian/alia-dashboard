@@ -140,7 +140,7 @@ export default function SettingsPage() {
 
         <Grid container spacing={3}>
           {/* General Settings */}
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -221,7 +221,7 @@ export default function SettingsPage() {
           </Grid>
 
           {/* Profile Summary */}
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>
@@ -266,7 +266,7 @@ export default function SettingsPage() {
           </Grid>
 
           {/* Notification Settings */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>
@@ -302,7 +302,7 @@ export default function SettingsPage() {
           </Grid>
 
           {/* Display Settings */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>

@@ -23,6 +23,7 @@ import {
   Star as StarIcon,
   ChevronLeft, Menu as MenuIcon,
 } from '@mui/icons-material';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { apiGet } from '@/utils/api';
 
@@ -135,23 +136,18 @@ export default function MerchantSidebar({ collapsed, onToggle }) {
         minHeight: 64,
       }}>
         {!collapsed && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box sx={{
-              width: 36, height: 36, borderRadius: 2,
-              background: 'linear-gradient(135deg, #1976d2, #42a5f5)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(25,118,210,0.5)',
-            }}>
-              <StorefrontIcon sx={{ fontSize: 20, color: '#fff' }} />
-            </Box>
-            <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2, color: '#fff' }}>
-                Alia
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem' }}>
-                Espace Marchand
-              </Typography>
-            </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <Image
+              src="/logos/logos.png"
+              alt="Alia - Logo officiel"
+              width={120}
+              height={40}
+              style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }}
+              priority
+            />
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', mt: 0.3 }}>
+              Espace Marchand
+            </Typography>
           </Box>
         )}
         <IconButton onClick={onToggle} sx={{ color: 'rgba(255,255,255,0.6)', '&:hover': { color: '#fff' } }}>

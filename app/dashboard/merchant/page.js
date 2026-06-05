@@ -219,14 +219,14 @@ export default function MerchantDashboard() {
       </Box>
 
       {/* KPI Cards */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         {[
           { title: "Chiffre d'affaires", value: `${(overview?.total_sales || 0).toLocaleString('fr-FR')} XOF`, subtitle: 'Toutes périodes', gradient: 'linear-gradient(135deg,#1976d2,#42a5f5)', icon: <AttachMoney sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 12 },
           { title: 'Commandes reçues', value: (overview?.orders_count || 0).toLocaleString('fr-FR'), subtitle: `${overview?.orders_pending || 0} en attente`, gradient: 'linear-gradient(135deg,#4caf50,#81c784)', icon: <ShoppingBag sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 8 },
           { title: 'Produits en stock', value: (overview?.products_in_stock || 0).toLocaleString('fr-FR'), subtitle: `${overview?.low_stock || 0} en rupture imminente`, gradient: 'linear-gradient(135deg,#9c27b0,#ce93d8)', icon: <Storefront sx={{ color: '#fff', fontSize: 24 }} />, trend: (overview?.low_stock || 0) > 5 ? 'down' : 'up', tv: 3 },
           { title: 'Note boutique', value: `${((overview?.rating || 50) / 20).toFixed(1)} / 5`, subtitle: 'Score satisfaction client', gradient: 'linear-gradient(135deg,#ff9800,#ffcc02)', icon: <Star sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 2 },
         ].map((kpi, i) => (
-          <Grid item xs={12} sm={6} lg={3} key={i}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
             <KpiCard loading={loading} title={kpi.title} value={kpi.value} subtitle={kpi.subtitle}
               icon={kpi.icon} gradient={kpi.gradient} trend={kpi.trend} trendValue={kpi.tv} />
           </Grid>
@@ -234,8 +234,8 @@ export default function MerchantDashboard() {
       </Grid>
 
       {/* Charts Row */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={8}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -254,7 +254,7 @@ export default function MerchantDashboard() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.06)', height: '100%' }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', mb: 2 }}>Statuts commandes</Typography>
@@ -282,8 +282,8 @@ export default function MerchantDashboard() {
       </Grid>
 
       {/* Orders + Bestsellers */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
-        <Grid item xs={12} lg={7}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
             <CardContent sx={{ p: 0 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 3, py: 2, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
@@ -334,7 +334,7 @@ export default function MerchantDashboard() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} lg={5}>
+        <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.06)', height: '100%' }}>
             <CardContent sx={{ p: 0 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 3, py: 2, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
@@ -371,8 +371,8 @@ export default function MerchantDashboard() {
       </Grid>
 
       {/* Activity + Alerts */}
-      <Grid container spacing={2.5}>
-        <Grid item xs={12} md={6}>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', mb: 2 }}>Activité récente</Typography>
@@ -402,7 +402,7 @@ export default function MerchantDashboard() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>

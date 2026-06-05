@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import {
@@ -18,10 +18,10 @@ function TabPanel({ children, value, index }) {
 }
 
 const NOTIFICATION_TYPES = [
-  { key: 'new_order',        label: 'Nouvelle commande',    desc: 'Notifié à chaque commande reçue'      },
-  { key: 'order_cancelled',  label: 'Commande annulée',     desc: 'Quand un acheteur annule sa commande'  },
+  { key: 'new_order',        label: 'Nouvelle commande',    desc: 'NotifiÃ© Ã  chaque commande reÃ§ue'      },
+  { key: 'order_cancelled',  label: 'Commande annulÃ©e',     desc: 'Quand un acheteur annule sa commande'  },
   { key: 'low_stock',        label: 'Stock faible',         desc: 'Quand un produit passe sous le seuil'  },
-  { key: 'payment_received', label: 'Paiement reçu',        desc: 'Confirmation de paiement validé'       },
+  { key: 'payment_received', label: 'Paiement reÃ§u',        desc: 'Confirmation de paiement validÃ©'       },
   { key: 'new_review',       label: 'Nouvel avis',          desc: 'Quand un client laisse un commentaire' },
 ];
 
@@ -36,7 +36,7 @@ export default function SettingsPage() {
 
   const [profile, setProfile] = useState({ shop_name: '', description: '', phone: '', email: '', logo_url: '' });
   const [delivery, setDelivery] = useState({ shipping_fee: '', free_shipping_threshold: '', shipping_delay: '' });
-  const [location, setLocation] = useState({ address: '', city: '', country: 'Sénégal', postal_code: '' });
+  const [location, setLocation] = useState({ address: '', city: '', country: 'SÃ©nÃ©gal', postal_code: '' });
   const [notifs, setNotifs] = useState({ email: true, sms: false, ...NOTIFICATION_TYPES.reduce((a, n) => ({ ...a, [n.key]: true }), {}) });
   const [payment, setPayment] = useState({ bank_name: '', account_number: '', account_holder: '', mobile_money: '' });
 
@@ -46,7 +46,7 @@ export default function SettingsPage() {
       .then(data => {
         setProfile({ shop_name: data.shop_name || data.name || '', description: data.description || '', phone: data.phone || '', email: data.email || '', logo_url: data.logo_url || '' });
         setDelivery({ shipping_fee: String(data.shipping_fee ?? ''), free_shipping_threshold: String(data.free_shipping_threshold ?? ''), shipping_delay: data.shipping_delay || '' });
-        setLocation({ address: data.address || '', city: data.city || '', country: data.country || 'Sénégal', postal_code: data.postal_code || '' });
+        setLocation({ address: data.address || '', city: data.city || '', country: data.country || 'SÃ©nÃ©gal', postal_code: data.postal_code || '' });
         setNotifs(prev => ({ ...prev, ...(data.notification_settings || {}) }));
         setPayment({ bank_name: data.bank_name || '', account_number: data.account_number || '', account_holder: data.account_holder || '', mobile_money: data.mobile_money || '' });
       })
@@ -58,7 +58,7 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       await apiPut(`/merchants/${mid}`, payload);
-      setSnack({ open: true, msg: 'Paramètres enregistrés !', severity: 'success' });
+      setSnack({ open: true, msg: 'ParamÃ¨tres enregistrÃ©s !', severity: 'success' });
     } catch (e) {
       setSnack({ open: true, msg: e?.message || 'Erreur lors de la sauvegarde', severity: 'error' });
     } finally {
@@ -75,19 +75,19 @@ export default function SettingsPage() {
   };
 
   if (loading) return (
-    <MerchantDashboardLayout title="Paramètres">
+    <MerchantDashboardLayout title="ParamÃ¨tres">
       <Skeleton variant="rectangular" height={48} sx={{ borderRadius: 2, mb: 3 }} />
       <Grid container spacing={3}>
-        {[1, 2].map(i => <Grid item xs={12} md={6} key={i}><Skeleton variant="rectangular" height={300} sx={{ borderRadius: 3 }} /></Grid>)}
+        {[1, 2].map(i => <Grid size={{ xs: 12, md: 6 }} key={i}><Skeleton variant="rectangular" height={300} sx={{ borderRadius: 3 }} /></Grid>)}
       </Grid>
     </MerchantDashboardLayout>
   );
 
   return (
-    <MerchantDashboardLayout title="Paramètres boutique">
+    <MerchantDashboardLayout title="ParamÃ¨tres boutique">
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#2c3e50' }}>Paramètres boutique</Typography>
-        <Typography variant="body2" sx={{ color: '#7f8c8d' }}>Gérez toutes vos configurations en un seul endroit</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#2c3e50' }}>ParamÃ¨tres boutique</Typography>
+        <Typography variant="body2" sx={{ color: '#7f8c8d' }}>GÃ©rez toutes vos configurations en un seul endroit</Typography>
       </Box>
 
       <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
@@ -101,10 +101,10 @@ export default function SettingsPage() {
         </Tabs>
 
         <CardContent sx={{ p: 3 }}>
-          {/* Tab 0 — Profil */}
+          {/* Tab 0 â€” Profil */}
           <TabPanel value={tab} index={0}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <Box sx={{ textAlign: 'center' }}>
                   <Avatar src={profile.logo_url} sx={{ width: 100, height: 100, mx: 'auto', mb: 2, bgcolor: '#1976d2', fontSize: 36 }}>
                     {(profile.shop_name || 'M')[0]?.toUpperCase()}
@@ -114,29 +114,29 @@ export default function SettingsPage() {
                     Changer le logo
                   </Button>
                   <input ref={logoInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleLogoChange} />
-                  <Typography variant="caption" sx={{ color: '#7f8c8d', display: 'block' }}>JPG, PNG — max 2MB</Typography>
+                  <Typography variant="caption" sx={{ color: '#7f8c8d', display: 'block' }}>JPG, PNG â€” max 2MB</Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12} md={8}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <Grid container spacing={2.5}>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <TextField fullWidth label="Nom de la boutique *" value={profile.shop_name}
                       onChange={e => setProfile(p => ({ ...p, shop_name: e.target.value }))}
                       InputProps={{ startAdornment: <InputAdornment position="start"><Store sx={{ fontSize: 18, color: '#7f8c8d' }} /></InputAdornment> }}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <TextField fullWidth multiline rows={3} label="Description" value={profile.description}
                       onChange={e => setProfile(p => ({ ...p, description: e.target.value }))}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth label="Téléphone" value={profile.phone}
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField fullWidth label="TÃ©lÃ©phone" value={profile.phone}
                       onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
                       InputProps={{ startAdornment: <InputAdornment position="start"><Phone sx={{ fontSize: 18, color: '#7f8c8d' }} /></InputAdornment> }}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField fullWidth label="Email" type="email" value={profile.email}
                       onChange={e => setProfile(p => ({ ...p, email: e.target.value }))}
                       InputProps={{ startAdornment: <InputAdornment position="start"><Email sx={{ fontSize: 18, color: '#7f8c8d' }} /></InputAdornment> }}
@@ -144,7 +144,7 @@ export default function SettingsPage() {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Button variant="contained" startIcon={<Save />} disabled={saving}
@@ -157,30 +157,30 @@ export default function SettingsPage() {
             </Grid>
           </TabPanel>
 
-          {/* Tab 1 — Livraison */}
+          {/* Tab 1 â€” Livraison */}
           <TabPanel value={tab} index={1}>
             <Grid container spacing={2.5}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Frais de livraison (XOF)" type="number" value={delivery.shipping_fee}
                   onChange={e => setDelivery(d => ({ ...d, shipping_fee: e.target.value }))}
                   InputProps={{ startAdornment: <InputAdornment position="start">XOF</InputAdornment> }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} inputProps={{ min: 0, step: 100 }} />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField fullWidth label="Livraison gratuite à partir de (XOF)" type="number" value={delivery.free_shipping_threshold}
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField fullWidth label="Livraison gratuite Ã  partir de (XOF)" type="number" value={delivery.free_shipping_threshold}
                   onChange={e => setDelivery(d => ({ ...d, free_shipping_threshold: e.target.value }))}
                   InputProps={{ startAdornment: <InputAdornment position="start">XOF</InputAdornment> }}
-                  helperText="Laisser vide pour désactiver"
+                  helperText="Laisser vide pour dÃ©sactiver"
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} inputProps={{ min: 0, step: 500 }} />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField fullWidth label="Délai de livraison estimé" value={delivery.shipping_delay}
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField fullWidth label="DÃ©lai de livraison estimÃ©" value={delivery.shipping_delay}
                   onChange={e => setDelivery(d => ({ ...d, shipping_delay: e.target.value }))}
                   placeholder="ex: 3-5 jours"
                   InputProps={{ endAdornment: <InputAdornment position="end">jours</InputAdornment> }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Divider sx={{ mb: 2, mt: 1 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Button variant="contained" startIcon={<Save />} disabled={saving}
@@ -193,38 +193,38 @@ export default function SettingsPage() {
             </Grid>
           </TabPanel>
 
-          {/* Tab 2 — Localisation */}
+          {/* Tab 2 â€” Localisation */}
           <TabPanel value={tab} index={2}>
             <Grid container spacing={2.5}>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField fullWidth label="Adresse" value={location.address}
                   onChange={e => setLocation(l => ({ ...l, address: e.target.value }))}
                   InputProps={{ startAdornment: <InputAdornment position="start"><LocationOn sx={{ fontSize: 18, color: '#7f8c8d' }} /></InputAdornment> }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Ville" value={location.city}
                   onChange={e => setLocation(l => ({ ...l, city: e.target.value }))}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Code postal" value={location.postal_code}
                   onChange={e => setLocation(l => ({ ...l, postal_code: e.target.value }))}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Pays" value={location.country}
                   onChange={e => setLocation(l => ({ ...l, country: e.target.value }))}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Box sx={{ height: 180, borderRadius: 3, bgcolor: '#f0f2f5', border: '2px dashed rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 1 }}>
                   <LocationOn sx={{ fontSize: 36, color: '#b0b0b0' }} />
-                  <Typography variant="body2" sx={{ color: '#b0b0b0', fontWeight: 600 }}>Aperçu de la carte</Typography>
-                  <Typography variant="caption" sx={{ color: '#b0b0b0' }}>Intégration Google Maps disponible</Typography>
+                  <Typography variant="body2" sx={{ color: '#b0b0b0', fontWeight: 600 }}>AperÃ§u de la carte</Typography>
+                  <Typography variant="caption" sx={{ color: '#b0b0b0' }}>IntÃ©gration Google Maps disponible</Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Divider />
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                   <Button variant="contained" startIcon={<Save />} disabled={saving}
@@ -237,7 +237,7 @@ export default function SettingsPage() {
             </Grid>
           </TabPanel>
 
-          {/* Tab 3 — Notifications */}
+          {/* Tab 3 â€” Notifications */}
           <TabPanel value={tab} index={3}>
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#2c3e50', mb: 1.5 }}>Canaux de notification</Typography>
@@ -253,7 +253,7 @@ export default function SettingsPage() {
               </Box>
             </Box>
             <Divider sx={{ mb: 3 }} />
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#2c3e50', mb: 2 }}>Événements</Typography>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#2c3e50', mb: 2 }}>Ã‰vÃ©nements</Typography>
             {NOTIFICATION_TYPES.map(n => (
               <Box key={n.key} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5, borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
                 <Box>
@@ -272,36 +272,36 @@ export default function SettingsPage() {
             </Box>
           </TabPanel>
 
-          {/* Tab 4 — Paiements */}
+          {/* Tab 4 â€” Paiements */}
           <TabPanel value={tab} index={4}>
             <Alert severity="info" sx={{ mb: 3, borderRadius: 2 }}>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>Informations bancaires</Typography>
-              <Typography variant="caption">Ces informations sont utilisées pour les virements de vos ventes.</Typography>
+              <Typography variant="caption">Ces informations sont utilisÃ©es pour les virements de vos ventes.</Typography>
             </Alert>
             <Grid container spacing={2.5}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Nom de la banque" value={payment.bank_name}
                   onChange={e => setPayment(p => ({ ...p, bank_name: e.target.value }))}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Titulaire du compte" value={payment.account_holder}
                   onChange={e => setPayment(p => ({ ...p, account_holder: e.target.value }))}
                   InputProps={{ startAdornment: <InputAdornment position="start"><Person sx={{ fontSize: 18, color: '#7f8c8d' }} /></InputAdornment> }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField fullWidth label="Numéro de compte" value={payment.account_number}
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField fullWidth label="NumÃ©ro de compte" value={payment.account_number}
                   onChange={e => setPayment(p => ({ ...p, account_number: e.target.value }))}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Mobile Money (Wave, Orange Money...)" value={payment.mobile_money}
                   onChange={e => setPayment(p => ({ ...p, mobile_money: e.target.value }))}
                   InputProps={{ startAdornment: <InputAdornment position="start"><Phone sx={{ fontSize: 18, color: '#7f8c8d' }} /></InputAdornment> }}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Divider />
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                   <Button variant="contained" startIcon={<Save />} disabled={saving}
@@ -323,319 +323,5 @@ export default function SettingsPage() {
         </Alert>
       </Snackbar>
     </MerchantDashboardLayout>
-  );
-}
-
-
-export default function SettingsPage() {
-  const [profile, setProfile] = useState({
-    shop_name: '',
-    email: '',
-    phone: '',
-    description: '',
-    logo_url: ''
-  });
-  
-  const [formData, setFormData] = useState({
-    shop_name: '',
-    email: '',
-    phone: '',
-    description: '',
-    logo_url: ''
-  });
-
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const data = await apiGet('/merchants/me');
-        const merchant = data.merchant || data;
-        
-        setProfile(merchant);
-        setFormData(merchant);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to load profile:', err);
-        setError(err.message || 'Failed to load profile');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSaveProfile = async () => {
-    try {
-      setSaving(true);
-      await apiPut('/merchants/me', formData);
-      setProfile(formData);
-      setSuccessMessage('Profile updated successfully!');
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (err) {
-      console.error('Failed to save profile:', err);
-      setError(err.message || 'Failed to save profile');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleReset = () => {
-    setFormData(profile);
-  };
-
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '500px' }}>
-          <CircularProgress />
-        </Box>
-      </DashboardLayout>
-    );
-  }
-
-  if (error && !profile.shop_name) {
-    return (
-      <DashboardLayout>
-        <Box sx={{ p: 2, bgcolor: '#ffebee', borderRadius: 1, color: '#c62828' }}>
-          <Typography>Error: {error}</Typography>
-        </Box>
-      </DashboardLayout>
-    );
-  }
-
-  return (
-    <DashboardLayout>
-      <Box>
-        <Typography variant="h4" sx={{ mb: 3, fontWeight: 600 }}>
-          Shop Settings
-        </Typography>
-
-        <Snackbar 
-          open={!!successMessage} 
-          autoHideDuration={3000}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        >
-          <Alert severity="success">{successMessage}</Alert>
-        </Snackbar>
-
-        <Snackbar 
-          open={!!error} 
-          autoHideDuration={5000}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        >
-          <Alert severity="error">{error}</Alert>
-        </Snackbar>
-
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <SettingsIcon sx={{ mr: 1, color: '#1976d2' }} />
-                  <Typography variant="h6">Shop Profile</Typography>
-                </Box>
-                <Divider sx={{ mb: 2 }} />
-                
-                <TextField
-                  fullWidth
-                  label="Shop Name"
-                  name="shop_name"
-                  value={formData.shop_name || ''}
-                  onChange={handleInputChange}
-                  sx={{ mb: 2 }}
-                />
-                
-                <TextField
-                  fullWidth
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={formData.email || ''}
-                  onChange={handleInputChange}
-                  sx={{ mb: 2 }}
-                />
-
-                <TextField
-                  fullWidth
-                  label="Phone"
-                  name="phone"
-                  value={formData.phone || ''}
-                  onChange={handleInputChange}
-                  sx={{ mb: 2 }}
-                />
-                
-                <TextField
-                  fullWidth
-                  label="Description"
-                  name="description"
-                  value={formData.description || ''}
-                  onChange={handleInputChange}
-                  multiline
-                  rows={4}
-                  sx={{ mb: 2 }}
-                />
-
-                <TextField
-                  fullWidth
-                  label="Logo URL"
-                  name="logo_url"
-                  value={formData.logo_url || ''}
-                  onChange={handleInputChange}
-                  sx={{ mb: 2 }}
-                />
-
-                <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-                  <Button
-                    variant="contained"
-                    startIcon={<SaveIcon />}
-                    onClick={handleSaveProfile}
-                    disabled={saving}
-                    sx={{ textTransform: 'none' }}
-                  >
-                    {saving ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={handleReset}
-                    disabled={saving}
-                    sx={{ textTransform: 'none' }}
-                  >
-                    Reset
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Current Profile
-                </Typography>
-                <Divider sx={{ mb: 2 }} />
-                
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary">Shop Name</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {profile.shop_name || 'Not set'}
-                  </Typography>
-                </Box>
-
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary">Email</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {profile.email || 'Not set'}
-                  </Typography>
-                </Box>
-
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary">Phone</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {profile.phone || 'Not set'}
-                  </Typography>
-                </Box>
-
-                {profile.logo_url && (
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Logo</Typography>
-                    <Box
-                      component="img"
-                      src={profile.logo_url}
-                      alt="Shop Logo"
-                      sx={{ maxWidth: '100px', maxHeight: '100px', mt: 1, borderRadius: 1 }}
-                    />
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Notification Settings
-                </Typography>
-                <Divider sx={{ mb: 2 }} />
-                
-                <FormControlLabel
-                  control={<Switch defaultChecked />}
-                  label="Email notifications for new orders"
-                  sx={{ mb: 2, display: 'block' }}
-                />
-                
-                <FormControlLabel
-                  control={<Switch defaultChecked />}
-                  label="Low stock alerts"
-                  sx={{ mb: 2, display: 'block' }}
-                />
-                
-                <FormControlLabel
-                  control={<Switch />}
-                  label="Daily sales reports"
-                  sx={{ mb: 2, display: 'block' }}
-                />
-                
-                <FormControlLabel
-                  control={<Switch defaultChecked />}
-                  label="Customer reviews"
-                  sx={{ mb: 2, display: 'block' }}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Display Settings
-                </Typography>
-                <Divider sx={{ mb: 2 }} />
-                
-                <FormControlLabel
-                  control={<Switch defaultChecked />}
-                  label="Show dashboard widgets"
-                  sx={{ mb: 2, display: 'block' }}
-                />
-                
-                <FormControlLabel
-                  control={<Switch defaultChecked />}
-                  label="Show charts and graphs"
-                  sx={{ mb: 2, display: 'block' }}
-                />
-                
-                <FormControlLabel
-                  control={<Switch />}
-                  label="Compact table view"
-                  sx={{ mb: 2, display: 'block' }}
-                />
-                
-                <FormControlLabel
-                  control={<Switch defaultChecked />}
-                  label="Show SKU in all tables"
-                  sx={{ mb: 2, display: 'block' }}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </Box>
-    </DashboardLayout>
   );
 }

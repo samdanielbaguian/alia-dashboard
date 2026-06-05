@@ -185,7 +185,7 @@ export default function OverviewPage() {
         
         {/* KPI Cards */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <KPICard
               title="Total Revenue"
               value={formatCurrency(kpiData.revenue.value)}
@@ -195,7 +195,7 @@ export default function OverviewPage() {
               color="#1976d2"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <KPICard
               title="Total Orders"
               value={kpiData.orders.value.toLocaleString()}
@@ -205,7 +205,7 @@ export default function OverviewPage() {
               color="#42a5f5"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <KPICard
               title="Total Products"
               value={kpiData.products.value}
@@ -215,7 +215,7 @@ export default function OverviewPage() {
               color="#0d47a1"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <KPICard
               title="Low Stock Alert"
               value={kpiData.lowStock.value}
@@ -229,17 +229,17 @@ export default function OverviewPage() {
 
         {/* Charts Row */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <LineChart title="Sales Trend" data={salesChartData} height={300} />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <DonutChart title="Category Distribution" data={categoryDistribution} />
           </Grid>
         </Grid>
 
         {/* Tables Row */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <DataTable
               title="Recent Orders"
               columns={orderColumns}
@@ -249,7 +249,7 @@ export default function OverviewPage() {
         </Grid>
 
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <DataTable
               title="Products"
               columns={productColumns}

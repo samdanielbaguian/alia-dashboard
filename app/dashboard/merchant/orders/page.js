@@ -131,8 +131,31 @@ export default function MerchantOrders() {
     return acc;
   }, {});
 
+  const kpiOrders = [
+    { label: 'Total commandes',  value: total,                         color: '#1976d2', bg: 'rgba(25,118,210,0.08)'  },
+    { label: 'En attente',       value: countByStatus.pending   || 0, color: '#ff9800', bg: 'rgba(255,152,0,0.08)'  },
+    { label: 'Expédiées',        value: countByStatus.shipped   || 0, color: '#9c27b0', bg: 'rgba(156,39,176,0.08)' },
+    { label: 'Livrées',          value: countByStatus.delivered || 0, color: '#4caf50', bg: 'rgba(76,175,80,0.08)'  },
+  ];
+
   return (
     <MerchantDashboardLayout title="Gestion des commandes">
+      {/* KPI Cards */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {kpiOrders.map((k, i) => (
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
+            <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.07)', bgcolor: k.bg, height: '100%' }}>
+              <CardContent sx={{ p: 2.5 }}>
+                <Typography variant="body2" sx={{ color: '#7f8c8d', fontWeight: 600, fontSize: '0.8rem', mb: 1 }}>{k.label}</Typography>
+                {loading ? <Skeleton height={40} width="60%" /> : (
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: k.color }}>{k.value}</Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
       {/* Status Tabs */}
       <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap' }}>
         {STATUS_LIST.map(s => (
@@ -152,7 +175,7 @@ export default function MerchantOrders() {
       </Box>
 
       {/* Filters */}
-      <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', mb: 3 }}>
+      <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', mb: 4 }}>
         <CardContent sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
             <TextField

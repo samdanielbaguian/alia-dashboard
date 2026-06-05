@@ -243,14 +243,14 @@ export default function MerchantProducts() {
   return (
     <MerchantDashboardLayout title="Mes Produits">
       {/* Stats Bar */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         {[
           { label: 'Total produits', value: total, color: '#1976d2', icon: <Inventory sx={{ fontSize: 20, color: '#1976d2' }} /> },
           { label: 'Actifs', value: activeCount, color: '#4caf50', icon: <CheckCircle sx={{ fontSize: 20, color: '#4caf50' }} /> },
           { label: 'Stock faible', value: lowStock, color: '#f44336', icon: <Warning sx={{ fontSize: 20, color: '#f44336' }} /> },
           { label: 'Best-sellers', value: products.filter(p => (p.total_sold || 0) > 10).length, color: '#ff9800', icon: <TrendingUp sx={{ fontSize: 20, color: '#ff9800' }} /> },
         ].map((stat, i) => (
-          <Grid item xs={6} md={3} key={i}>
+          <Grid size={{ xs: 6, md: 3 }} key={i}>
             <Card sx={{ borderRadius: 2.5, boxShadow: '0 2px 12px rgba(0,0,0,0.07)', p: 0 }}>
               <CardContent sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: `${stat.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -267,7 +267,7 @@ export default function MerchantProducts() {
       </Grid>
 
       {/* Filters & Actions */}
-      <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', mb: 3 }}>
+      <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', mb: 4 }}>
         <CardContent sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
             {/* Search */}
@@ -317,9 +317,9 @@ export default function MerchantProducts() {
 
       {/* Products Grid */}
       {loading ? (
-        <Grid container spacing={2.5}>
+        <Grid container spacing={3}>
           {[...Array(8)].map((_, i) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={i}>
               <Skeleton variant="rectangular" height={340} sx={{ borderRadius: 3 }} />
             </Grid>
           ))}
@@ -343,9 +343,9 @@ export default function MerchantProducts() {
           </CardContent>
         </Card>
       ) : (
-        <Grid container spacing={2.5}>
+        <Grid container spacing={3}>
           {products.map(product => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={product.id || product._id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product.id || product._id}>
               <ProductCard
                 product={product}
                 onEdit={p => router.push(`/dashboard/merchant/products/${p.id || p._id}/edit`)}

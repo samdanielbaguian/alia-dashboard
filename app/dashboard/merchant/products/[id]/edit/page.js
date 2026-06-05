@@ -123,7 +123,7 @@ export default function EditProduct() {
   if (loading) return (
     <MerchantDashboardLayout title="Modifier produit">
       <Grid container spacing={3}>
-        {[1,2,3].map(i => <Grid item xs={12} key={i}><Skeleton variant="rectangular" height={200} sx={{ borderRadius: 3 }} /></Grid>)}
+        {[1,2,3].map(i => <Grid size={{ xs: 12 }} key={i}><Skeleton variant="rectangular" height={200} sx={{ borderRadius: 3 }} /></Grid>)}
       </Grid>
     </MerchantDashboardLayout>
   );
@@ -176,7 +176,7 @@ export default function EditProduct() {
       </Box>
 
       <Grid container spacing={3}>
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           {/* Infos */}
           <Card sx={{ borderRadius: 3, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', mb: 3 }}>
             <CardContent sx={{ p: 3 }}>
@@ -184,16 +184,16 @@ export default function EditProduct() {
                 <Info sx={{ color: '#1976d2' }} /> Informations générales
               </Typography>
               <Grid container spacing={2.5}>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField fullWidth label="Titre *" value={form.title} onChange={handleChange('title')}
                     error={Boolean(errors.title)} helperText={errors.title}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField fullWidth multiline rows={4} label="Description" value={form.description} onChange={handleChange('description')}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth error={Boolean(errors.category)}>
                     <InputLabel>Catégorie *</InputLabel>
                     <Select value={form.category} onChange={handleChange('category')} label="Catégorie *" sx={{ borderRadius: 2 }}>
@@ -201,11 +201,11 @@ export default function EditProduct() {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Marque" value={form.brand} onChange={handleChange('brand')}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="SKU" value={form.sku} onChange={handleChange('sku')}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
                 </Grid>
@@ -220,13 +220,13 @@ export default function EditProduct() {
                 <Euro sx={{ color: '#4caf50' }} /> Prix et Stock
               </Typography>
               <Grid container spacing={2.5}>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Prix de vente (XOF) *" type="number" value={form.price}
                     onChange={handleChange('price')} error={Boolean(errors.price)} helperText={errors.price}
                     InputProps={{ startAdornment: <InputAdornment position="start">XOF</InputAdornment> }}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} inputProps={{ min: 0, step: 100 }} />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Prix original (XOF)" type="number" value={form.original_price}
                     onChange={handleChange('original_price')}
                     InputProps={{ startAdornment: <InputAdornment position="start">XOF</InputAdornment> }}
@@ -234,12 +234,12 @@ export default function EditProduct() {
                     FormHelperTextProps={{ sx: { color: '#4caf50', fontWeight: 600 } }}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} inputProps={{ min: 0, step: 100 }} />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Stock *" type="number" value={form.stock_quantity}
                     onChange={handleChange('stock_quantity')} error={Boolean(errors.stock_quantity)} helperText={errors.stock_quantity}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} inputProps={{ min: 0 }} />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField fullWidth label="Poids (kg)" type="number" value={form.weight}
                     onChange={handleChange('weight')}
                     InputProps={{ endAdornment: <InputAdornment position="end">kg</InputAdornment> }}
@@ -273,7 +273,7 @@ export default function EditProduct() {
         </Grid>
 
         {/* Right */}
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           {/* Images */}
           <Card sx={{ borderRadius: 3, boxShadow: '0 2px 16px rgba(0,0,0,0.07)', mb: 3 }}>
             <CardContent sx={{ p: 3 }}>
@@ -292,7 +292,7 @@ export default function EditProduct() {
               {imagePreviews.length > 0 && (
                 <Grid container spacing={1}>
                   {imagePreviews.map((src, i) => (
-                    <Grid item xs={4} key={i}>
+                    <Grid size={{ xs: 4 }} key={i}>
                       <Box sx={{ position: 'relative', borderRadius: 1.5, overflow: 'hidden', aspectRatio: '1' }}>
                         <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         <IconButton size="small" onClick={() => { setImagePreviews(p => p.filter((_, j) => j !== i)); setImages(p => p.filter((_, j) => j !== i)); }}

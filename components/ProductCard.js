@@ -1,168 +1,242 @@
-'use client';
+﻿'use client';
 
-import { Card, CardContent, CardMedia, Box, Typography, Rating, IconButton, Button } from '@mui/material';
-import { Favorite as FavoriteIcon, FavoriteBorder as FavoriteBorderIcon, Message as MessageIcon } from '@mui/icons-material';
 import { useState } from 'react';
+import { Box, Typography, IconButton, Button, Rating, Chip, Tooltip, Skeleton } from '@mui/material';
+import {
+  FavoriteBorder as WishlistIcon,
+  Favorite as FavoriteIcon,
+  ShoppingCart as CartIcon,
+  Storefront as StoreIcon,
+  LocalShipping as ShippingIcon,
+  Visibility as ViewIcon,
+  Bolt as FlashIcon,
+  FiberNew as NewIcon,
+  EmojiEvents as WinnerIcon,
+} from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
-export default function ProductCard({ 
-  product, 
-  onFavoriteToggle, 
-  isFavorited = false,
-  onContact,
-  displayVariant = 'grid' // 'grid' or 'list'
-}) {
+function getCategoryIcon(category) {
+  const map = {
+    'Électronique': '📱', 'Audio': '🎧', 'Mode': '👕', 'Maison': '🏠',
+    'Gaming': '🎮', 'Bijoux': '💎', 'Sports': '⚽', 'Beauté': '✨',
+    'Alimentation': '🍽️', 'Art': '🎨',
+  };
+  return map[category] || '📦';
+}
+
+export default function ProductCard({ product, onAddToCart, onFavoriteToggle, isFavorited = false, formatPrice }) {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
   const [hovered, setHovered] = useState(false);
+  const [favActive, setFavActive] = useState(isFavorited);
+  const [adding, setAdding] = useState(false);
 
-  const handleFavoriteClick = () => {
-    if (!isLoggedIn) {
-      router.push('/login');
-      return;
-    }
+  const name          = product.title || product.name || 'Produit';
+  const price         = product.price || 0;
+  const originalPrice = product.originalPrice || product.original_price || null;
+  const discount      = product.discount || (originalPrice ? Math.round((1 - price / originalPrice) * 100) : null);
+  const rating        = product.rating || 4.0;
+  const reviews       = product.reviews_count || Math.floor(rating * 20 + 12);
+  const stock         = product.stock ?? 20;
+  const category      = product.category || '';
+  const merchant      = product.merchant_name || 'Marchand';
+  const image         = product.image_url;
+  const lowStock      = stock > 0 && stock <= 5;
+  const isFlash       = product.isFlash || false;
+  const isNew         = product.isNew || false;
+  const isWinner      = product.isWinner || false;
+
+  const fmtPrice = (v) => formatPrice ? formatPrice(v) : `${v.toLocaleString('fr-FR')} FCFA`;
+
+  const handleFav = (e) => {
+    e.stopPropagation();
+    if (!isLoggedIn) { router.push('/login'); return; }
+    setFavActive(f => !f);
     onFavoriteToggle?.(product.id);
   };
 
-  const handleContactClick = () => {
-    if (!isLoggedIn) {
-      router.push('/login');
-      return;
-    }
-    onContact?.(product);
+  const handleCart = (e) => {
+    e.stopPropagation();
+    if (!isLoggedIn) { router.push('/login'); return; }
+    setAdding(true);
+    onAddToCart?.(product);
+    setTimeout(() => setAdding(false), 800);
   };
 
-  if (displayVariant === 'list') {
-    return (
-      <Card sx={{ display: 'flex', mb: 2, '&:hover': { boxShadow: 3 } }}>
-        <CardMedia
-          component="img"
-          sx={{ width: 200, height: 200, objectFit: 'cover' }}
-          image={product.image_url || '/placeholder.jpg'}
-          alt={product.name}
-        />
-        <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              {product.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ my: 1 }}>
-              {product.description?.substring(0, 100)}...
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <Rating value={product.rating || 0} readOnly size="small" />
-              <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                ({product.reviews_count || 0})
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-              <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 700 }}>
-                €{product.price?.toFixed(2)}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={isFavorited ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                  onClick={handleFavoriteClick}
-                  sx={{ color: isFavorited ? 'error.main' : 'inherit' }}
-                >
-                  {isFavorited ? 'Favorisé' : 'Favori'}
-                </Button>
-                <Button
-                  variant="contained"
-                  size="small"
-                  startIcon={<MessageIcon />}
-                  onClick={handleContactClick}
-                >
-                  Contacter
-                </Button>
-              </Box>
-            </Box>
-          </CardContent>
-        </Box>
-      </Card>
-    );
-  }
-
-  // Grid variant (default)
   return (
-    <Card
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        '&:hover': { transform: 'translateY(-4px)', boxShadow: 3 },
-      }}
+    <Box
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      sx={{
+        borderRadius: 3, overflow: 'hidden',
+        bgcolor: 'background.paper',
+        boxShadow: hovered ? '0 16px 48px rgba(0,0,0,0.14)' : '0 2px 12px rgba(0,0,0,0.07)',
+        transform: hovered ? 'translateY(-5px)' : 'translateY(0)',
+        transition: 'all 0.28s cubic-bezier(0.4,0,0.2,1)',
+        display: 'flex', flexDirection: 'column',
+        cursor: 'pointer', height: '100%',
+        border: isWinner ? '2px solid #f59e0b' : '1px solid transparent',
+      }}
     >
-      <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-        <CardMedia
-          component="img"
-          height="200"
-          image={product.image_url || '/placeholder.jpg'}
-          alt={product.name}
-          sx={{ objectFit: 'cover' }}
-        />
-        {hovered && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              right: 0,
-              bottom: 0,
-              left: 0,
-              bgcolor: 'rgba(0,0,0,0.1)',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={isFavorited ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-              onClick={handleFavoriteClick}
-              sx={{
-                bgcolor: isFavorited ? 'error.main' : 'primary.main',
-                '&:hover': { bgcolor: isFavorited ? 'error.dark' : 'primary.dark' },
-              }}
-            />
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<MessageIcon />}
-              onClick={handleContactClick}
-            />
+      {/* Image zone */}
+      <Box sx={{ position: 'relative', height: 200, bgcolor: '#f5f5f5', flexShrink: 0, overflow: 'hidden' }}>
+        {image ? (
+          <Box component="img" src={image} alt={name}
+            sx={{ width: '100%', height: '100%', objectFit: 'cover',
+              transform: hovered ? 'scale(1.06)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
+        ) : (
+          <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'linear-gradient(135deg, #f0f4ff 0%, #e8f4f8 100%)' }}>
+            <Typography sx={{ fontSize: '3.5rem' }}>{getCategoryIcon(category)}</Typography>
           </Box>
         )}
+
+        {/* Badges top-left */}
+        <Box sx={{ position: 'absolute', top: 10, left: 10, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          {discount && (
+            <Chip label={`-${discount}%`} size="small" icon={<FlashIcon sx={{ fontSize: '12px !important', color: '#fff !important' }} />}
+              sx={{ bgcolor: '#ef4444', color: '#fff', fontWeight: 800, fontSize: '0.7rem', height: 22 }} />
+          )}
+          {isNew && !discount && (
+            <Chip label="Nouveau" size="small"
+              sx={{ bgcolor: '#10b981', color: '#fff', fontWeight: 800, fontSize: '0.7rem', height: 22 }} />
+          )}
+          {isFlash && (
+            <Chip label="⚡ Flash" size="small"
+              sx={{ bgcolor: '#f59e0b', color: '#fff', fontWeight: 800, fontSize: '0.7rem', height: 22 }} />
+          )}
+          {isWinner && (
+            <Chip label="Buy Box" size="small" icon={<WinnerIcon sx={{ fontSize: '12px !important', color: '#fff !important' }} />}
+              sx={{ bgcolor: '#f59e0b', color: '#fff', fontWeight: 800, fontSize: '0.7rem', height: 22 }} />
+          )}
+          {lowStock && !discount && !isNew && (
+            <Chip label={`${stock} restants`} size="small"
+              sx={{ bgcolor: '#ff6b6b', color: '#fff', fontWeight: 700, fontSize: '0.68rem', height: 22 }} />
+          )}
+          {stock === 0 && (
+            <Chip label="Rupture" size="small"
+              sx={{ bgcolor: '#9e9e9e', color: '#fff', fontWeight: 700, fontSize: '0.68rem', height: 22 }} />
+          )}
+        </Box>
+
+        {/* Wishlist button */}
+        <Tooltip title={favActive ? 'Retirer des favoris' : 'Ajouter aux favoris'}>
+          <IconButton size="small" onClick={handleFav}
+            sx={{
+              position: 'absolute', top: 8, right: 8,
+              bgcolor: 'rgba(255,255,255,0.92)', width: 32, height: 32,
+              color: favActive ? '#ff6b6b' : '#9e9e9e',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+              '&:hover': { bgcolor: '#fff', color: '#ff6b6b', transform: 'scale(1.15)' },
+              transition: 'all 0.2s',
+            }}>
+            {favActive ? <FavoriteIcon sx={{ fontSize: 16 }} /> : <WishlistIcon sx={{ fontSize: 16 }} />}
+          </IconButton>
+        </Tooltip>
+
+        {/* Quick view on hover */}
+        <Box sx={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          bgcolor: 'rgba(21,101,192,0.88)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1,
+          py: 1,
+          transform: hovered ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.25s',
+        }}>
+          <ViewIcon sx={{ color: '#fff', fontSize: 16 }} />
+          <Typography sx={{ color: '#fff', fontSize: '0.78rem', fontWeight: 600 }}>Aperçu rapide</Typography>
+        </Box>
       </Box>
 
-      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, minHeight: '2.5em' }}>
-          {product.name}
+      {/* Content */}
+      <Box sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', gap: 0.8 }}>
+        {category && (
+          <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#4ecdc4', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            {category}
+          </Typography>
+        )}
+
+        <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: 'text.primary', lineHeight: 1.35,
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {name}
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <Rating value={product.rating || 0} readOnly size="small" />
-          <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
-            ({product.reviews_count || 0})
+        {/* Rating */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Rating value={rating} readOnly size="small" precision={0.5}
+            sx={{ '& .MuiRating-iconFilled': { color: '#f59e0b' }, '& .MuiRating-iconEmpty': { color: '#e5e7eb' } }} />
+          <Typography sx={{ fontSize: '0.72rem', color: 'text.secondary', fontWeight: 600 }}>
+            {rating.toFixed(1)} ({reviews})
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto' }}>
-          <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 700 }}>
-            €{product.price?.toFixed(2)}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {product.merchant_name || 'Marchand'}
-          </Typography>
+        {/* Price */}
+        <Box sx={{ mt: 'auto' }}>
+          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '1.15rem', color: '#1565c0' }}>
+              {fmtPrice(price)}
+            </Typography>
+            {originalPrice && (
+              <Typography sx={{ fontSize: '0.78rem', color: '#9ca3af', textDecoration: 'line-through' }}>
+                {fmtPrice(originalPrice)}
+              </Typography>
+            )}
+          </Box>
+          {discount && (
+            <Typography sx={{ fontSize: '0.72rem', color: '#ef4444', fontWeight: 700 }}>
+              Économisez {fmtPrice(originalPrice - price)}
+            </Typography>
+          )}
         </Box>
-      </CardContent>
-    </Card>
+
+        {/* Shipping + Merchant */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <ShippingIcon sx={{ fontSize: 13, color: '#4ecdc4' }} />
+          <Typography sx={{ fontSize: '0.7rem', color: '#4ecdc4', fontWeight: 600 }}>Livraison gratuite</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <StoreIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
+          <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary' }} noWrap>{merchant}</Typography>
+        </Box>
+
+        {/* CTA */}
+        <Button
+          fullWidth
+          size="small"
+          variant="contained"
+          startIcon={<CartIcon sx={{ fontSize: '0.95rem' }} />}
+          onClick={handleCart}
+          disabled={stock === 0 || adding}
+          sx={{
+            mt: 1, borderRadius: 2, textTransform: 'none', fontWeight: 700, fontSize: '0.82rem',
+            background: adding ? '#10b981' : 'linear-gradient(135deg,#1565c0,#1976d2)',
+            boxShadow: 'none',
+            '&:hover': { background: 'linear-gradient(135deg,#0d47a1,#1565c0)', boxShadow: '0 4px 12px rgba(21,101,192,0.35)' },
+            transition: 'all 0.2s',
+          }}
+        >
+          {stock === 0 ? 'Indisponible' : adding ? '✓ Ajouté' : 'Ajouter au panier'}
+        </Button>
+      </Box>
+    </Box>
+  );
+}
+
+/**
+ * Skeleton de chargement
+ */
+export function ProductCardSkeleton() {
+  return (
+    <Box sx={{ borderRadius: 3, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+      <Skeleton variant="rectangular" height={200} />
+      <Box sx={{ p: 2 }}>
+        <Skeleton width="40%" height={14} sx={{ mb: 0.5 }} />
+        <Skeleton width="80%" height={18} />
+        <Skeleton width="60%" height={18} />
+        <Skeleton width="50%" height={24} sx={{ mt: 1 }} />
+        <Skeleton variant="rectangular" height={34} sx={{ mt: 1.5, borderRadius: 1 }} />
+      </Box>
+    </Box>
   );
 }

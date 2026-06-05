@@ -95,7 +95,7 @@ export default function OrderDetail() {
     <MerchantDashboardLayout title="Détail commande">
       <Grid container spacing={3}>
         {[1, 2, 3].map(i => (
-          <Grid item xs={12} md={i === 1 ? 8 : 4} key={i}>
+          <Grid size={{ xs: 12, md: i === 1 ? 8 : 4 }} key={i}>
             <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 3 }} />
           </Grid>
         ))}
@@ -193,7 +193,7 @@ export default function OrderDetail() {
 
       <Grid container spacing={3}>
         {/* Left */}
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           {/* Products */}
           <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', mb: 3 }}>
             <CardContent sx={{ p: 3 }}>
@@ -284,7 +284,7 @@ export default function OrderDetail() {
         </Grid>
 
         {/* Right */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           {/* Customer info */}
           <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', mb: 3 }}>
             <CardContent sx={{ p: 3 }}>
