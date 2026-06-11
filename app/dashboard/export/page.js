@@ -150,7 +150,7 @@ export default function ExportPage() {
           {exportOptions.map((option, index) => {
             const IconComponent = option.icon;
             return (
-              <Grid item xs={12} md={6} key={index}>
+              <Grid size={{ xs: 12, md: 6 }} key={index}>
                 <Card>
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>

@@ -5,8 +5,6 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Box, Typography, Grid } from '@mui/material';
 import {
   AttachMoney as RevenueIcon,
@@ -16,78 +14,53 @@ import {
   Inventory as ProductsIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/layout/DashboardLayout';
 import KPICard from '@/components/cards/KPICard';
 import LineChart from '@/components/charts/LineChart';
 import DonutChart from '@/components/charts/DonutChart';
 import SalesHeatmap from '@/components/charts/SalesHeatmap';
-import SalesMapWidget from '@/components/charts/SalesMapWidget';
 import DataTable from '@/components/tables/DataTable';
-import {
-  kpiData,
-  recentOrders,
-  bestSellers,
-  topCustomers,
-  salesChartData,
-  categoryDistribution,
-  heatmapData,
-  salesZones,
-} from '@/data/mockData';
-import { formatCurrency } from '@/utils/helpers';
 import { apiGet } from '@/utils/api';
+import { formatCurrency } from '@/utils/helpers';
 
 export default function OverviewPage() {
-  const router = useRouter();
-  const [overview, setOverview] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-    async function loadOverview() {
-      try {
-        const data = await apiGet('/merchants/me/dashboard-overview');
-        if (mounted) setOverview(data);
-      } catch (err) {
-        console.error('Failed to load dashboard overview', err);
-        // If unauthorized, clear token and redirect to login
-        if (err && err.message && err.message.includes('401')) {
-          try { localStorage.removeItem('access_token'); } catch (e) {}
-          router.push('/');
-        }
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-
-    loadOverview();
-    return () => { mounted = false; };
-  }, [router]);
   // Table columns
   const orderColumns = [
     { field: 'id', headerName: 'Order ID' },
-    { field: 'sku', headerName: 'SKU' },
-    { field: 'customer', headerName: 'Customer' },
-    { field: 'amount', headerName: 'Amount', type: 'currency' },
+    { field: 'user_id', headerName: 'User' },
+    { field: 'total_amount', headerName: 'Amount', type: 'currency' },
     { field: 'status', headerName: 'Status', type: 'status' },
-    { field: 'date', headerName: 'Date' },
+    { field: 'created_at', headerName: 'Date' },
   ];
 
-  const bestSellerColumns = [
-    { field: 'rank', headerName: 'Rank' },
+  const productColumns = [
     { field: 'sku', headerName: 'SKU' },
-    { field: 'name', headerName: 'Product' },
+    { field: 'title', headerName: 'Product' },
     { field: 'category', headerName: 'Category' },
-    { field: 'sales', headerName: 'Sales', type: 'number' },
-    { field: 'revenue', headerName: 'Revenue', type: 'currency' },
+    { field: 'price', headerName: 'Price', type: 'currency' },
+    { field: 'stock', headerName: 'Stock', type: 'number' },
   ];
 
-  const customerColumns = [
-    { field: 'name', headerName: 'Customer' },
-    { field: 'email', headerName: 'Email' },
-    { field: 'orders', headerName: 'Orders', type: 'number' },
-    { field: 'totalSpent', headerName: 'Total Spent', type: 'currency' },
-    { field: 'status', headerName: 'Status', type: 'status' },
-  ];
+  if (error) {
+    return (
+      <DashboardLayout>
+        <Box sx={{ p: 2, bgcolor: '#ffebee', borderRadius: 1, color: '#c62828' }}>
+          <Typography>Error loading dashboard: {error}</Typography>
+        </Box>
+      </DashboardLayout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+          <CircularProgress />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -99,16 +72,16 @@ export default function OverviewPage() {
         {/* KPI Cards */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid item xs={12} sm={6} md={4}>
-              <KPICard
-                title="Total Revenue"
-                value={loading ? '—' : formatCurrency(overview?.total_sales ?? 0)}
-                change={kpiData.revenue.change}
-                period={kpiData.revenue.period}
-                icon={RevenueIcon}
-                color="#1976d2"
-              />
+            <KPICard
+              title="Total Revenue"
+              value={formatCurrency(kpiData.revenue.value)}
+              change={kpiData.revenue.change}
+              period={kpiData.revenue.period}
+              icon={RevenueIcon}
+              color="#1976d2"
+            />
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <KPICard
               title="Total Orders"
               value={loading ? '—' : (overview?.orders_count ?? 0).toLocaleString()}
@@ -120,8 +93,8 @@ export default function OverviewPage() {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <KPICard
-              title="New Customers"
-              value={loading ? '—' : (overview?.new_customers ?? 0).toLocaleString()}
+              title="Total Customers"
+              value={kpiData.customers.value.toLocaleString()}
               change={kpiData.customers.change}
               period={kpiData.customers.period}
               icon={CustomersIcon}
@@ -130,8 +103,8 @@ export default function OverviewPage() {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <KPICard
-              title="Products In Stock"
-              value={loading ? '—' : (overview?.products_in_stock ?? 0)}
+              title="Active Sellers"
+              value={kpiData.sellers.value}
               change={kpiData.sellers.change}
               period={kpiData.sellers.period}
               icon={SellersIcon}
@@ -148,7 +121,7 @@ export default function OverviewPage() {
               color="#0d47a1"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <KPICard
               title="Low Stock Alert"
               value={loading ? '—' : (overview?.low_stock ?? 0)}
@@ -162,52 +135,31 @@ export default function OverviewPage() {
 
         {/* Charts Row */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={8}>
-            <LineChart title="Sales Trend (Last 12 Months)" data={salesChartData} height={300} />
+          <Grid size={{ xs: 12, md: 8 }}>
+            <LineChart title="Sales Trend" data={salesChartData} height={300} />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <DonutChart title="Category Distribution" data={categoryDistribution} />
-          </Grid>
-        </Grid>
-
-        {/* Sales Heatmap - PRESERVED FROM EXISTING */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12}>
-            <SalesHeatmap title="Sales Activity Heatmap" data={heatmapData} />
-          </Grid>
-        </Grid>
-
-        {/* Sales Map Widget - NEW FEATURE */}
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12}>
-            <SalesMapWidget title="Zones de Vente par Région" data={salesZones} />
           </Grid>
         </Grid>
 
         {/* Tables Row */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <DataTable
               title="Recent Orders"
               columns={orderColumns}
-              data={recentOrders.slice(0, 5)}
+              data={recentOrders}
             />
           </Grid>
         </Grid>
 
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12 }}>
             <DataTable
-              title="Best Sellers"
-              columns={bestSellerColumns}
-              data={bestSellers.slice(0, 5)}
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <DataTable
-              title="Top Customers"
-              columns={customerColumns}
-              data={topCustomers.slice(0, 5)}
+              title="Products"
+              columns={productColumns}
+              data={allProducts.slice(0, 5)}
             />
           </Grid>
         </Grid>

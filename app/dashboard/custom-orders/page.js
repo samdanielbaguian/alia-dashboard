@@ -95,7 +95,7 @@ export default function CustomOrdersPage() {
         {/* Stats Cards */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
           {stats.map((stat, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
               <Card>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -127,7 +127,7 @@ export default function CustomOrdersPage() {
           </Typography>
           <Grid container spacing={2}>
             {customOrders.slice(0, 4).map((order) => (
-              <Grid item xs={12} md={6} key={order.id}>
+              <Grid size={{ xs: 12, md: 6 }} key={order.id}>
                 <Paper elevation={2} sx={{ p: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
                     <Box>
@@ -220,7 +220,7 @@ export default function CustomOrdersPage() {
             💡 Guide du Vendeur - Commandes Personnalisées
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                   1. Vérifier les détails
@@ -230,7 +230,7 @@ export default function CustomOrdersPage() {
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                   2. Préparer la commande
@@ -240,7 +240,7 @@ export default function CustomOrdersPage() {
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                   3. Expédier et suivre
