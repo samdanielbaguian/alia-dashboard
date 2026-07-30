@@ -28,9 +28,11 @@ export default function DashboardPage() {
 
         const role = user.role || user.type;
 
-        if (role === 'merchant') {
+        if (role === 'admin') {
+          router.push('/dashboard/admin');
+        } else if (role === 'merchant') {
           router.push('/dashboard/merchant');
-        } else if (role === 'customer') {
+        } else if (role === 'buyer' || role === 'customer') {
           router.push('/dashboard/customer');
         } else {
           router.push('/unauthorized');

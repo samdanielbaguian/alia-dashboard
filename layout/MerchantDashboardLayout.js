@@ -48,17 +48,6 @@ export default function MerchantDashboardLayout({ children, title = 'Dashboard' 
     }
   }, [loading, mounted, user, isMerchant]);
 
-  if (!mounted || loading) return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f5f7fa' }}>
-      <Box sx={{
-        width: 48, height: 48, borderRadius: '50%',
-        background: 'linear-gradient(135deg, #1976d2, #42a5f5)',
-        animation: 'pulse 1.5s ease-in-out infinite',
-        '@keyframes pulse': { '0%, 100%': { transform: 'scale(1)', opacity: 1 }, '50%': { transform: 'scale(1.1)', opacity: 0.7 } },
-      }} />
-    </Box>
-  );
-
   const sideWidth = collapsed ? DRAWER_COLLAPSED : DRAWER_WIDTH;
   const userInitial = (user?.email || 'M')[0].toUpperCase();
 
@@ -92,8 +81,8 @@ export default function MerchantDashboardLayout({ children, title = 'Dashboard' 
               <Image
                 src="/icons/icons.png"
                 alt="Alia"
-                width={32}
-                height={32}
+                width={150}
+                height={75}
                 style={{ objectFit: 'contain' }}
               />
             </Box>

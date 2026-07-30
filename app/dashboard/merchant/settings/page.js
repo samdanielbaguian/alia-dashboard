@@ -10,7 +10,7 @@ import {
   Store, LocalShipping, LocationOn, Notifications, Payment, Save, CloudUpload, Phone, Email, Person,
 } from '@mui/icons-material';
 import MerchantDashboardLayout from '@/layout/MerchantDashboardLayout';
-import { apiGet, apiPut } from '@/utils/api';
+import { apiGet, apiPut, apiUpload } from '@/utils/api';
 import { useAuth } from '@/hooks/useAuth';
 
 function TabPanel({ children, value, index }) {
@@ -34,7 +34,7 @@ export default function SettingsPage() {
   const [snack, setSnack] = useState({ open: false, msg: '', severity: 'success' });
   const logoInputRef = useRef(null);
 
-  const [profile, setProfile] = useState({ shop_name: '', description: '', phone: '', email: '', logo_url: '' });
+  const [profile, setProfile] = useState({ shop_name: '', description: '', phone: '', email: '', logo_url: '', logo: '' });
   const [delivery, setDelivery] = useState({ shipping_fee: '', free_shipping_threshold: '', shipping_delay: '' });
   const [location, setLocation] = useState({ address: '', city: '', country: 'SÃ©nÃ©gal', postal_code: '' });
   const [notifs, setNotifs] = useState({ email: true, sms: false, ...NOTIFICATION_TYPES.reduce((a, n) => ({ ...a, [n.key]: true }), {}) });
@@ -44,7 +44,7 @@ export default function SettingsPage() {
     if (!mid) return;
     apiGet(`/merchants/${mid}`)
       .then(data => {
-        setProfile({ shop_name: data.shop_name || data.name || '', description: data.description || '', phone: data.phone || '', email: data.email || '', logo_url: data.logo_url || '' });
+        setProfile({ shop_name: data.shop_name || data.name || '', description: data.description || '', phone: data.phone || '', email: data.email || '', logo_url: data.logo || data.logo_url || '', logo: data.logo || data.logo_url || '', address: data.address || '', city: data.city || '', country: data.country || 'Sénégal' });
         setDelivery({ shipping_fee: String(data.shipping_fee ?? ''), free_shipping_threshold: String(data.free_shipping_threshold ?? ''), shipping_delay: data.shipping_delay || '' });
         setLocation({ address: data.address || '', city: data.city || '', country: data.country || 'SÃ©nÃ©gal', postal_code: data.postal_code || '' });
         setNotifs(prev => ({ ...prev, ...(data.notification_settings || {}) }));
@@ -65,13 +65,39 @@ export default function SettingsPage() {
       setSaving(false);
     }
   };
-
-  const handleLogoChange = (e) => {
+  const handleSave = async () => {
+    const payload = {
+      shop_name: profile.shop_name,
+      description: profile.description,
+      phone: profile.phone,
+      address: profile.address,
+      city: profile.city,
+      country: profile.country,
+    };
+    if (profile.logo) {
+      payload.logo = profile.logo;
+    }
+    await save(payload);
+  };
+  const handleLogoChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = ev => setProfile(p => ({ ...p, logo_url: ev.target.result }));
     reader.readAsDataURL(file);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const uploadData = await apiUpload('/uploads', formData);
+      if (uploadData?.url) {
+        setProfile(p => ({ ...p, logo: uploadData.url, logo_url: uploadData.url }));
+      }
+    } catch (error) {
+      console.error('Logo upload failed', error);
+      setSnack({ open: true, msg: 'Échec de l\'upload du logo', severity: 'error' });
+    }
   };
 
   if (loading) return (
@@ -148,7 +174,7 @@ export default function SettingsPage() {
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Button variant="contained" startIcon={<Save />} disabled={saving}
-                    onClick={() => save(profile)}
+                    onClick={handleSave}
                     sx={{ borderRadius: 2, background: 'linear-gradient(135deg,#1976d2,#42a5f5)', fontWeight: 700 }}>
                     {saving ? 'Enregistrement...' : 'Enregistrer'}
                   </Button>

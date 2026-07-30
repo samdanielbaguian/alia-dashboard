@@ -8,7 +8,10 @@
 import { Box, Typography, Card, CardContent, Button, Stack, Grid, Divider } from '@mui/material';
 import { GetApp as ExportIcon, Description, TableChart, Assessment } from '@mui/icons-material';
 import DashboardLayout from '@/layout/DashboardLayout';
-import { orders, products, customers, sellers } from '@/data/mockData';
+const orders = [];
+const products = [];
+const customers = [];
+const sellers = [];
 
 export default function ExportPage() {
   const exportToCSV = (data, filename, headers) => {

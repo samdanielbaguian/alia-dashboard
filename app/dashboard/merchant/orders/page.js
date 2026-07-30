@@ -324,14 +324,12 @@ export default function MerchantOrders() {
             <LocalShipping sx={{ fontSize: 16 }} /> Marquer expédiée
           </MenuItem>
         )}
-        {(menuAnchor.status === 'pending' || menuAnchor.status === 'confirmed') && (
-          <>
-            <Divider />
-            <MenuItem onClick={() => handleAction(menuAnchor.orderId, 'cancel')} sx={{ fontSize: '0.85rem', gap: 1.5, color: '#f44336' }}>
-              <Cancel sx={{ fontSize: 16 }} /> Annuler
-            </MenuItem>
-          </>
-        )}
+        {(menuAnchor.status === 'pending' || menuAnchor.status === 'confirmed') && [
+          <Divider key="divider" />,
+          <MenuItem key="cancel" onClick={() => handleAction(menuAnchor.orderId, 'cancel')} sx={{ fontSize: '0.85rem', gap: 1.5, color: '#f44336' }}>
+            <Cancel sx={{ fontSize: 16 }} /> Annuler
+          </MenuItem>,
+        ]}
       </Menu>
 
       <Snackbar open={snack.open} autoHideDuration={3000} onClose={() => setSnack(s => ({ ...s, open: false }))}

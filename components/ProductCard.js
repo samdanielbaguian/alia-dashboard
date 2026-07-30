@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Typography, IconButton, Button, Rating, Chip, Tooltip, Skeleton } from '@mui/material';
 import {
   FavoriteBorder as WishlistIcon,
@@ -15,6 +15,9 @@ import {
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { formatMerchantName } from '@/utils/nameFormatter';
+import { getProductImageUrl } from '@/utils/imageUtils';
+import CheckoutNowModal from '@/components/CheckoutNowModal';
 
 function getCategoryIcon(category) {
   const map = {
@@ -32,16 +35,22 @@ export default function ProductCard({ product, onAddToCart, onFavoriteToggle, is
   const [favActive, setFavActive] = useState(isFavorited);
   const [adding, setAdding] = useState(false);
 
+  useEffect(() => {
+    setFavActive(isFavorited);
+  }, [isFavorited]);
+
+  const productId = product.id || product._id;
   const name          = product.title || product.name || 'Produit';
   const price         = product.price || 0;
   const originalPrice = product.originalPrice || product.original_price || null;
   const discount      = product.discount || (originalPrice ? Math.round((1 - price / originalPrice) * 100) : null);
-  const rating        = product.rating || 4.0;
+  const rating        = product.merchant_rating || product.rating || 4.0;
   const reviews       = product.reviews_count || Math.floor(rating * 20 + 12);
   const stock         = product.stock ?? 20;
   const category      = product.category || '';
-  const merchant      = product.merchant_name || 'Marchand';
-  const image         = product.image_url;
+  const merchantObj   = { shop_name: product.merchant_shop_name, name: product.merchant_name };
+  const merchant      = formatMerchantName(merchantObj) || 'Marchand';
+  const image         = getProductImageUrl(product);
   const lowStock      = stock > 0 && stock <= 5;
   const isFlash       = product.isFlash || false;
   const isNew         = product.isNew || false;
@@ -53,7 +62,7 @@ export default function ProductCard({ product, onAddToCart, onFavoriteToggle, is
     e.stopPropagation();
     if (!isLoggedIn) { router.push('/login'); return; }
     setFavActive(f => !f);
-    onFavoriteToggle?.(product.id);
+    onFavoriteToggle?.(productId);
   };
 
   const handleCart = (e) => {
@@ -62,6 +71,14 @@ export default function ProductCard({ product, onAddToCart, onFavoriteToggle, is
     setAdding(true);
     onAddToCart?.(product);
     setTimeout(() => setAdding(false), 800);
+  };
+
+  const [buyNowOpen, setBuyNowOpen] = useState(false);
+
+  const handleBuyNow = (e) => {
+    e.stopPropagation();
+    if (!isLoggedIn) { router.push('/login'); return; }
+    setBuyNowOpen(true);
   };
 
   return (
@@ -201,23 +218,39 @@ export default function ProductCard({ product, onAddToCart, onFavoriteToggle, is
         </Box>
 
         {/* CTA */}
-        <Button
-          fullWidth
-          size="small"
-          variant="contained"
-          startIcon={<CartIcon sx={{ fontSize: '0.95rem' }} />}
-          onClick={handleCart}
-          disabled={stock === 0 || adding}
-          sx={{
-            mt: 1, borderRadius: 2, textTransform: 'none', fontWeight: 700, fontSize: '0.82rem',
-            background: adding ? '#10b981' : 'linear-gradient(135deg,#1565c0,#1976d2)',
-            boxShadow: 'none',
-            '&:hover': { background: 'linear-gradient(135deg,#0d47a1,#1565c0)', boxShadow: '0 4px 12px rgba(21,101,192,0.35)' },
-            transition: 'all 0.2s',
-          }}
-        >
-          {stock === 0 ? 'Indisponible' : adding ? '✓ Ajouté' : 'Ajouter au panier'}
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+          <Button
+            fullWidth
+            size="small"
+            variant="contained"
+            startIcon={<CartIcon sx={{ fontSize: '0.95rem' }} />}
+            onClick={handleCart}
+            disabled={stock === 0 || adding}
+            sx={{
+              borderRadius: 2, textTransform: 'none', fontWeight: 700, fontSize: '0.82rem',
+              background: adding ? '#10b981' : 'linear-gradient(135deg,#1565c0,#1976d2)',
+              boxShadow: 'none',
+              '&:hover': { background: 'linear-gradient(135deg,#0d47a1,#1565c0)', boxShadow: '0 4px 12px rgba(21,101,192,0.35)' },
+              transition: 'all 0.2s',
+            }}
+          >
+            {stock === 0 ? 'Indisponible' : adding ? '✓ Ajouté' : 'Ajouter au panier'}
+          </Button>
+
+          <Button
+            fullWidth
+            size="small"
+            variant="contained"
+            color="success"
+            onClick={handleBuyNow}
+            disabled={stock === 0}
+            sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, fontSize: '0.82rem' }}
+          >
+            Acheter maintenant
+          </Button>
+        </Box>
+
+        <CheckoutNowModal open={buyNowOpen} onClose={() => setBuyNowOpen(false)} product={product} />
       </Box>
     </Box>
   );

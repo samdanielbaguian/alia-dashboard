@@ -9,7 +9,7 @@ import { Box, Typography, Button, Grid, Card, CardContent, Chip, Paper, Divider 
 import { GetApp as ExportIcon, ShoppingCart as OrderIcon, Palette as CustomIcon } from '@mui/icons-material';
 import DashboardLayout from '@/layout/DashboardLayout';
 import DataTable from '@/components/tables/DataTable';
-import { customOrders } from '@/data/mockData';
+const customOrders = [];
 import { formatCurrency } from '@/utils/helpers';
 
 export default function CustomOrdersPage() {

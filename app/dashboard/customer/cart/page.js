@@ -13,16 +13,17 @@ import {
   ArrowForward, CreditCard, LocalShipping, Home,
 } from '@mui/icons-material';
 import CustomerDashboardLayout from '@/layout/CustomerDashboardLayout';
-import { mockCart } from '@/utils/mockData';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/utils/api';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 // ─── Cart Item Row ─────────────────────────────────────────────────────────────
 
 function CartItem({ item, onQtyChange, onRemove }) {
   const product = item.product || item;
-  const name    = item.product_name || product?.name || product?.title || 'Produit';
-  const price   = item.unit_price || product?.price || product?.base_price || 0;
-  const image   = product?.images?.[0] || product?.image_url || item.image_url;
-  const itemId  = item._id || item.id;
+  const name    = item.title || product?.title || product?.name || 'Produit';
+  const price   = item.current_price || item.price_at_add || product?.price || 0;
+  const image   = getProductImageUrl(product);
+  const itemId  = item.product_id || item._id || item.id;
   const qty     = item.quantity || 1;
 
   return (
@@ -32,14 +33,12 @@ function CartItem({ item, onQtyChange, onRemove }) {
       '&:last-child': { borderBottom: 'none' },
       '&:hover': { bgcolor: '#faf9ff' }, transition: 'background 0.15s',
     }}>
-      {/* Image */}
       <Avatar variant="rounded"
         src={image}
         sx={{ width: 72, height: 72, bgcolor: '#ede9fe', borderRadius: 2, flexShrink: 0 }}>
         <Storefront sx={{ color: '#7c3aed', fontSize: 28 }} />
       </Avatar>
 
-      {/* Info */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography sx={{ fontWeight: 700, fontSize: '0.88rem', color: '#1e1b4b', mb: 0.3 }} noWrap>
           {name}
@@ -47,9 +46,13 @@ function CartItem({ item, onQtyChange, onRemove }) {
         <Typography sx={{ fontWeight: 800, fontSize: '0.9rem', color: '#7c3aed' }}>
           {price.toLocaleString('fr-FR')} XOF
         </Typography>
+        {item.stock_warning && (
+          <Typography sx={{ fontSize: '0.75rem', color: '#f59e0b' }}>
+            Quantité limitée en stock
+          </Typography>
+        )}
       </Box>
 
-      {/* Qty controls */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: '#f5f3ff', borderRadius: 2, px: 0.5 }}>
         <IconButton size="small" onClick={() => onQtyChange(itemId, qty - 1)} disabled={qty <= 1}
           sx={{ color: '#7c3aed', '&:disabled': { color: '#c4b5fd' } }}>
@@ -64,12 +67,10 @@ function CartItem({ item, onQtyChange, onRemove }) {
         </IconButton>
       </Box>
 
-      {/* Subtotal */}
       <Typography sx={{ fontWeight: 800, fontSize: '0.95rem', color: '#1e1b4b', minWidth: 100, textAlign: 'right' }}>
         {(price * qty).toLocaleString('fr-FR')} XOF
       </Typography>
 
-      {/* Remove */}
       <Tooltip title="Retirer du panier">
         <IconButton size="small" onClick={() => onRemove(itemId)} sx={{ color: '#ef4444', '&:hover': { bgcolor: '#fee2e2' } }}>
           <Delete fontSize="small" />
@@ -189,48 +190,79 @@ export default function CartPage() {
     setTimeout(() => setToast(t => ({ ...t, show: false })), 3500);
   };
 
-  const fetchCart = useCallback(() => {
+  const fetchCart = useCallback(async () => {
     setLoading(true);
-    setCart(mockCart);
-    setLoading(false);
+    try {
+      const data = await apiGet('/cart');
+      setCart(data || { items: [] });
+    } catch (error) {
+      console.error(error);
+      setCart({ items: [] });
+      showToast('Impossible de charger le panier', 'error');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchCart(); }, [fetchCart]);
 
-  const handleQtyChange = (itemId, newQty) => {
-    if (newQty < 1) return;
-    setCart(prev => ({
-      ...prev,
-      items: (prev.items || []).map(i =>
-        (i._id || i.id) === itemId ? { ...i, quantity: newQty } : i
-      ),
-    }));
+  const handleQtyChange = async (itemId, newQty) => {
+    if (!itemId || newQty < 1) return;
+    setLoading(true);
+    try {
+      const data = await apiPut(`/cart/items/${itemId}`, { quantity: newQty });
+      setCart(data);
+    } catch (error) {
+      console.error(error);
+      showToast('Impossible de mettre à jour la quantité', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRemove = (itemId) => {
-    setCart(prev => ({ ...prev, items: (prev.items || []).filter(i => (i._id || i.id) !== itemId) }));
-    showToast('Article retiré du panier');
+  const handleRemove = async (itemId) => {
+    setLoading(true);
+    try {
+      const data = await apiDelete(`/cart/items/${itemId}`);
+      setCart(data);
+      showToast('Article retiré du panier');
+    } catch (error) {
+      console.error(error);
+      showToast('Impossible de retirer l\'article', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleShare = async () => {
-    const link = window.location.href;
-    await navigator.clipboard.writeText(link);
-    showToast('Lien de partage copié !');
+    try {
+      const data = await apiPost('/cart/share', { expires_in_hours: 24 });
+      setShareLink(data.share_link || '');
+      showToast('Lien de partage généré');
+    } catch (error) {
+      console.error(error);
+      showToast('Échec du partage du panier', 'error');
+    }
   };
 
-  const handleCheckout = (form) => {
+  const handleCheckout = async (form) => {
     setCheckoutLoading(true);
-    setTimeout(() => {
-      setCheckoutLoading(false);
+    try {
+      await apiPost('/orders/from-cart', { payment_method: form.payment_method });
       setCheckoutOpen(false);
-      showToast('Commande passée avec succès ! Redirection...');
-      setTimeout(() => router.push('/dashboard/customer/orders'), 2000);
-    }, 600);
+      showToast('Commande passée avec succès !');
+      router.push('/dashboard/customer/orders');
+    } catch (error) {
+      console.error(error);
+      showToast('Erreur lors de la validation du panier', 'error');
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   const items = cart?.items || [];
   const subtotal = items.reduce((s, i) => {
-    const price = i.unit_price || i.product?.price || i.product?.base_price || 0;
+    const price = i.current_price || i.price_at_add || i.product?.price || 0;
     return s + price * (i.quantity || 1);
   }, 0);
 
@@ -310,7 +342,7 @@ export default function CartPage() {
 
               {items.map(item => (
                 <CartItem
-                  key={item._id || item.id}
+                  key={item.product_id || item._id || item.id || `${item.title}-${item.quantity}`}
                   item={item}
                   onQtyChange={handleQtyChange}
                   onRemove={handleRemove}

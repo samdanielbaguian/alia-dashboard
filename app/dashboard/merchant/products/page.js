@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import MerchantDashboardLayout from '@/layout/MerchantDashboardLayout';
 import { apiGet, apiDelete } from '@/utils/api';
 import { useAuth } from '@/hooks/useAuth';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 const CATEGORIES = ['Tous', 'Électronique', 'Mode', 'Maison', 'Beauté', 'Sports', 'Alimentation', 'Jouets', 'Auto', 'Autre'];
 const SORT_OPTIONS = [
@@ -97,10 +98,10 @@ function ProductCard({ product, onEdit, onDelete, onView }) {
 
       {/* Product Image */}
       <Box sx={{ height: 180, overflow: 'hidden', bgcolor: '#f5f7fa', position: 'relative' }}>
-        {product.images?.[0] || product.image_url ? (
+        {getProductImageUrl(product) ? (
           <CardMedia
             component="img"
-            image={product.images?.[0] || product.image_url}
+            image={getProductImageUrl(product)}
             alt={product.title}
             sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />

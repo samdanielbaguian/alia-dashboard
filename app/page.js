@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Box, Container, Typography, Grid, Button,
   Chip, Fab, Snackbar, Alert, Pagination,
@@ -13,17 +14,8 @@ import ProductCard from '@/components/ProductCard';
 import PromoBanner from '@/components/PromoBanner';
 import Footer from '@/components/Footer';
 import { useTheme } from '@/context/ThemeContext';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-const MOCK_CATEGORIES = [
-  { name: 'Electronique', count: 24 },
-  { name: 'Mode',         count: 18 },
-  { name: 'Audio',        count: 12 },
-  { name: 'Maison',       count: 8  },
-  { name: 'Gaming',       count: 6  },
-  { name: 'Beaute',       count: 15 },
-];
+import { useAuth } from '@/hooks/useAuth';
+import { apiGet, apiPost, apiDelete } from '@/utils/api';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -51,11 +43,13 @@ function ProductCardSkeleton() {
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const { isDarkMode } = useTheme();
+  const { isLoggedIn } = useAuth();
 
   const [products, setProducts]           = useState([]);
   const [loading, setLoading]             = useState(true);
-  const [categories, setCategories]       = useState(MOCK_CATEGORIES);
+  const [categories, setCategories]       = useState([]);
   const [searchTerm, setSearchTerm]       = useState('');
   const [activeCategory, setActiveCategory] = useState('');
   const [sortBy, setSortBy]               = useState('newest');
@@ -66,14 +60,26 @@ export default function HomePage() {
   const [favorites, setFavorites]         = useState(new Set());
   const [toast, setToast]                 = useState({ open: false, message: '', severity: 'success' });
 
+  const [errorMessage, setErrorMessage] = useState('');
+
   useEffect(() => {
     const fetchProducts = async () => {
+      setErrorMessage('');
       try {
         setLoading(true);
-        const res  = await fetch(`${API_BASE}/api/products?limit=48`);
-        const data = await res.json();
-        const list = Array.isArray(data) ? data : (data.items ?? data.products ?? []);
+        const data = await apiGet('/products?limit=48');
+        const list = Array.isArray(data) ? data : (data?.items ?? data?.products ?? []);
+
+        if (!Array.isArray(list) || list.length === 0) {
+          setProducts([]);
+          setErrorMessage('Aucun produit disponible pour le moment.');
+          return;
+        }
+
+        // Success with products
         setProducts(list);
+        setErrorMessage('');
+
         const cats = [...new Set(list.map(p => p.category).filter(Boolean))];
         if (cats.length) {
           setCategories(cats.map(name => ({
@@ -81,8 +87,9 @@ export default function HomePage() {
             count: list.filter(p => p.category === name).length,
           })));
         }
-      } catch {
+      } catch (err) {
         setProducts([]);
+        setErrorMessage('Impossible de charger les produits. Veuillez réessayer plus tard.');
       } finally {
         setLoading(false);
       }
@@ -95,6 +102,38 @@ export default function HomePage() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setCartCount(0);
+      setWishlistCount(0);
+      setFavorites(new Set());
+      return;
+    }
+
+    const loadUserState = async () => {
+      try {
+        const [cartData, wishlistData] = await Promise.all([
+          apiGet('/cart'),
+          apiGet('/customers/me/wishlist'),
+        ]);
+
+        const cartItems = cartData?.total_items || 0;
+        const wishlistItems = wishlistData?.wishlist || [];
+        const wishlistIds = wishlistItems
+          .map((item) => item.id || item.product_id || item._id || item.product?._id || item.product?.id)
+          .filter(Boolean);
+
+        setCartCount(cartItems);
+        setWishlistCount(wishlistIds.length);
+        setFavorites(new Set(wishlistIds));
+      } catch (err) {
+        console.error('Failed to load user cart/wishlist state:', err);
+      }
+    };
+
+    loadUserState();
+  }, [isLoggedIn]);
 
   const filtered = products
     .filter(p => {
@@ -128,24 +167,66 @@ export default function HomePage() {
     document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleAddToCart = (product) => {
-    setCartCount(prev => prev + 1);
-    const name = product.title || product.name || 'Produit';
-    setToast({ open: true, message: `"${name}" ajouté au panier !`, severity: 'success' });
+  const handleAddToCart = async (product) => {
+    if (!isLoggedIn) {
+      router.push('/login');
+      return;
+    }
+
+    const productId = product?.id || product?._id;
+    if (!productId) {
+      setToast({ open: true, message: 'Produit invalide', severity: 'error' });
+      return;
+    }
+
+    try {
+      await apiPost('/cart/items', { product_id: productId, quantity: 1 });
+      const cartData = await apiGet('/cart');
+      setCartCount(cartData?.total_items || 0);
+
+      const name = product.title || product.name || 'Produit';
+      setToast({ open: true, message: `"${name}" ajouté au panier !`, severity: 'success' });
+    } catch (err) {
+      console.error('Failed to add product to cart:', err);
+      setToast({ open: true, message: 'Impossible d’ajouter le produit au panier', severity: 'error' });
+    }
   };
 
-  const handleFavorite = (productId) => {
-    setFavorites(prev => {
-      const next = new Set(prev);
-      if (next.has(productId)) {
-        next.delete(productId);
-        setWishlistCount(c => Math.max(0, c - 1));
+  const handleFavorite = async (productId) => {
+    if (!isLoggedIn) {
+      router.push('/login');
+      return;
+    }
+
+    if (!productId) {
+      setToast({ open: true, message: 'Produit invalide', severity: 'error' });
+      return;
+    }
+
+    const isCurrentlyFavorite = favorites.has(productId);
+
+    try {
+      if (isCurrentlyFavorite) {
+        await apiDelete(`/customers/me/wishlist/${productId}`);
       } else {
-        next.add(productId);
-        setWishlistCount(c => c + 1);
+        await apiPost('/customers/me/wishlist', { product_id: productId });
       }
-      return next;
-    });
+
+      setFavorites(prev => {
+        const next = new Set(prev);
+        if (next.has(productId)) {
+          next.delete(productId);
+        } else {
+          next.add(productId);
+        }
+        return next;
+      });
+
+      setWishlistCount(prev => Math.max(0, prev + (isCurrentlyFavorite ? -1 : 1)));
+    } catch (err) {
+      console.error('Failed to toggle favorite:', err);
+      setToast({ open: true, message: 'Impossible de mettre à jour la wishlist', severity: 'error' });
+    }
   };
 
   const SORT_OPTIONS = [

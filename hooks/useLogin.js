@@ -71,7 +71,14 @@ export function useLogin() {
       if (res.ok && data.access_token) {
         localStorage.setItem('authToken', data.access_token);
         localStorage.setItem('authUser', JSON.stringify(data.user || {}));
-        window.location.href = data.user?.role === 'merchant' ? '/dashboard/merchant' : '/dashboard/customer';
+        const role = data.user?.role;
+        if (role === 'admin') {
+          window.location.href = '/dashboard/admin';
+        } else if (role === 'merchant') {
+          window.location.href = '/dashboard/merchant';
+        } else {
+          window.location.href = '/dashboard/customer';
+        }
       }
     } catch { /* ignore */ } finally { setPhoneLoading(false); }
   };
@@ -132,7 +139,8 @@ export function useLogin() {
         id: decodedToken.sub,
         email: decodedToken.email || email,
         role: decodedToken.role || 'buyer',
-        first_name: decodedToken.first_name || decodedToken.name || 'Utilisateur',
+        first_name: decodedToken.first_name,
+        last_name: decodedToken.last_name,
       };
 
       console.log('👤 Utilisateur construit:', user);
@@ -145,7 +153,9 @@ export function useLogin() {
       console.log('✅ Utilisateur:', user.email);
       console.log('✅ Rôle:', user.role);
 
-      if (user.role === 'merchant') {
+      if (user.role === 'admin') {
+        window.location.href = '/dashboard/admin';
+      } else if (user.role === 'merchant') {
         window.location.href = '/dashboard/merchant';
       } else if (user.role === 'buyer') {
         window.location.href = '/dashboard/customer';

@@ -26,7 +26,7 @@ import {
   LocalShipping
 } from '@mui/icons-material';
 import DashboardLayout from '@/layout/DashboardLayout';
-import { activityFeed } from '@/data/mockData';
+const activityFeed = [];
 
 export default function ActivityPage() {
   const getIcon = (iconName) => {

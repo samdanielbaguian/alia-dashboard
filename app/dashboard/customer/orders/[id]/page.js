@@ -7,14 +7,18 @@ import {
   Grid, Skeleton, Alert, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Avatar, Stepper,
   Step, StepLabel, StepConnector, stepConnectorClasses,
+  Rating, TextField, // ← AJOUTÉ
 } from '@mui/material';
 import {
   ArrowBack, Cancel, Refresh, LocalShipping,
   CheckCircle, Pending, ShoppingBag, Payment, Home,
+  Star as StarIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import CustomerDashboardLayout from '@/layout/CustomerDashboardLayout';
-import { mockOrders } from '@/utils/mockData';
+import { apiGet, apiPost } from '@/utils/api';
+import { formatMerchantName } from '@/utils/nameFormatter';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 // ─── Status config ────────────────────────────────────────────────────────────
 
@@ -83,24 +87,58 @@ export default function OrderDetailPage() {
   const [cancelling, setCancelling] = useState(false);
   const [toast, setToast]     = useState({ show: false, msg: '', sev: 'info' });
 
+  // ─── États pour l'avis ───
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [submittingReview, setSubmittingReview] = useState(false);
+
   const showToast = (msg, sev = 'success') => {
     setToast({ show: true, msg, sev });
     setTimeout(() => setToast(t => ({ ...t, show: false })), 3500);
   };
 
-  const fetchOrder = useCallback(() => {
+  const fetchOrder = useCallback(async () => {
     if (!orderId) return;
     setLoading(true);
-    const found = mockOrders.find(o => (o._id || o.id) === orderId);
-    setOrder(found || null);
-    setLoading(false);
+    try {
+      const orderData = await apiGet(`/orders/me/${orderId}`);
+      setOrder(orderData);
+      // Vérifier si un avis a déjà été laissé
+      try {
+        const reviews = await apiGet(`/reviews/order/${orderId}`);
+        if (reviews && reviews.length > 0) {
+          setReviewSubmitted(true);
+          setRating(reviews[0].rating);
+          setComment(reviews[0].comment || '');
+        }
+      } catch {
+        // Ignorer l'erreur si l'endpoint n'existe pas encore
+      }
+    } catch (error) {
+      console.error('Failed to load order:', error);
+      setOrder(null);
+      showToast('Commande introuvable', 'error');
+    } finally {
+      setLoading(false);
+    }
   }, [orderId]);
 
   useEffect(() => { fetchOrder(); }, [fetchOrder]);
 
-  const handleCancel = () => {
-    setOrder(prev => prev ? { ...prev, status: 'cancelled' } : prev);
-    showToast('Commande annulée avec succès');
+  const handleCancel = async () => {
+    if (!orderId) return;
+    setCancelling(true);
+    try {
+      await apiPost(`/orders/${orderId}/cancel`, { reason: 'Annulation par le client' });
+      setOrder(prev => prev ? { ...prev, status: 'cancelled' } : prev);
+      showToast('Commande annulée avec succès');
+    } catch (error) {
+      console.error('Failed to cancel order:', error);
+      showToast('Impossible d\'annuler la commande', 'error');
+    } finally {
+      setCancelling(false);
+    }
   };
 
   const handleReorder = () => {
@@ -108,9 +146,29 @@ export default function OrderDetailPage() {
     setTimeout(() => router.push('/dashboard/customer/cart'), 1500);
   };
 
+  // ─── Soumission de l'avis ───
+  const submitReview = async () => {
+    if (!rating) {
+      showToast('Veuillez attribuer une note', 'warning');
+      return;
+    }
+    setSubmittingReview(true);
+    try {
+      await apiPost(`/reviews/${orderId}`, { rating, comment });
+      setReviewSubmitted(true);
+      showToast('Merci pour votre avis !');
+    } catch (error) {
+      console.error('Failed to submit review:', error);
+      showToast('Erreur lors de l\'envoi de l\'avis', 'error');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   const statusCfg = STATUS_CFG[order?.status] || { label: order?.status, color: '#6b7280', bg: '#f3f4f6' };
   const activeStep = STEP_STATUS.indexOf(order?.status);
   const isCancelled = order?.status === 'cancelled';
+  const canReview = order?.status === 'delivered' && !reviewSubmitted;
 
   return (
     <CustomerDashboardLayout title="Détail commande">
@@ -235,7 +293,7 @@ export default function OrderDetailPage() {
                           <TableCell>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                               <Avatar variant="rounded"
-                                src={item.product?.images?.[0] || item.image_url}
+                                src={getProductImageUrl(item.product || item)}
                                 sx={{ width: 36, height: 36, bgcolor: '#ede9fe' }}>
                                 <ShoppingBag sx={{ fontSize: 18, color: '#7c3aed' }} />
                               </Avatar>
@@ -313,9 +371,62 @@ export default function OrderDetailPage() {
               {/* Marchand */}
               {order.merchant && (
                 <InfoCard title="Marchand" icon={<Home fontSize="small" />}>
-                  <InfoRow label="Boutique" value={order.merchant.business_name || order.merchant.name} />
-                  <InfoRow label="Contact" value={order.merchant.phone || ''} />
+                  <InfoRow label="Boutique" value={formatMerchantName(order.merchant)} />
+                  <InfoRow label="Contact" value={order.merchant.phone || order.merchant.email || 'Non renseigné'} />
                 </InfoCard>
+              )}
+
+              {/* ⭐ AVIS CLIENT */}
+              {canReview && (
+                <Card sx={{ borderRadius: 2.5, boxShadow: '0 2px 12px rgba(0,0,0,0.07)', p: 2.5 }}>
+                  <Typography sx={{ fontWeight: 700, color: '#1e1b4b', mb: 2, fontSize: '0.95rem' }}>
+                    Donnez votre avis
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    <Rating
+                      value={rating}
+                      onChange={(e, val) => setRating(val)}
+                      size="large"
+                      icon={<StarIcon fontSize="inherit" />}
+                    />
+                    {rating > 0 && (
+                      <Typography sx={{ fontSize: '0.8rem', color: '#6b7280' }}>
+                        {rating}/5
+                      </Typography>
+                    )}
+                  </Box>
+                  <TextField
+                    label="Votre commentaire (optionnel)"
+                    multiline
+                    rows={3}
+                    fullWidth
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    sx={{ mb: 2 }}
+                    placeholder="Qu'avez-vous pensé de ce marchand ?"
+                  />
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={submitReview}
+                    disabled={!rating || submittingReview}
+                    sx={{
+                      bgcolor: '#7c3aed',
+                      '&:hover': { bgcolor: '#6d28d9' },
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {submittingReview ? 'Envoi...' : 'Envoyer mon avis'}
+                  </Button>
+                </Card>
+              )}
+
+              {reviewSubmitted && order?.status === 'delivered' && (
+                <Alert severity="success" sx={{ borderRadius: 2 }}>
+                  ✅ Merci pour votre avis !
+                </Alert>
               )}
             </Box>
           </Grid>

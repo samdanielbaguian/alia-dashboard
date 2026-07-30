@@ -13,7 +13,7 @@ import {
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import MerchantDashboardLayout from '@/layout/MerchantDashboardLayout';
-import { apiPost } from '@/utils/api';
+import { apiPost, apiUpload, getAuthToken } from '@/utils/api';
 import { useAuth } from '@/hooks/useAuth';
 
 const CATEGORIES = ['Électronique', 'Mode', 'Maison', 'Beauté', 'Sports', 'Alimentation', 'Jouets', 'Auto', 'Autre'];
@@ -87,26 +87,51 @@ export default function NewProduct() {
     }
     setSaving(true);
     try {
+      // Upload images first using centralized api helper
+      // Debug: show auth token presence
+      try { console.debug('[NewProduct] auth token present:', !!getAuthToken()); } catch {}
+      const imageUrls = [];
+      for (const file of images) {
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+
+        console.debug('[NewProduct] uploading file', file.name, file.size);
+        const uploadData = await apiUpload('/uploads', uploadFormData);
+        console.debug('[NewProduct] upload response', uploadData);
+        if (!uploadData || !uploadData.url) {
+          throw new Error(`Erreur lors de l'upload de l'image: ${file.name}`);
+        }
+
+        imageUrls.push(uploadData.url);
+      }
+
+      console.debug('[NewProduct] collected imageUrls', imageUrls);
+
+      // Create product with image URLs
       const mid = user?.id || user?._id;
-      // Build FormData for image upload
-      const formData = new FormData();
       const productData = {
-        ...form,
+        title: form.title.trim(),
+        description: form.description.trim(),
+        category: form.category,
         price: Number(form.price),
-        stock_quantity: Number(form.stock_quantity),
-        original_price: form.original_price ? Number(form.original_price) : undefined,
-        shipping_fee: Number(form.shipping_fee || 0),
-        min_order_quantity: Number(form.min_order_quantity || 1),
-        max_order_quantity: form.max_order_quantity ? Number(form.max_order_quantity) : undefined,
+        original_price: form.original_price ? Number(form.original_price) : null,
+        stock: Number(form.stock_quantity),
+        images: imageUrls,
+        sku: form.sku || null,
+        size: form.brand ? undefined : null,
+        color: null,
+        weight: form.weight ? Number(form.weight) : null,
+        delivery_days: parseInt(form.shipping_delay) || 3,
         merchant_id: mid,
-        is_active: publish ? true : form.is_active,
-        tags,
       };
-      // Try JSON first (backend may not support multipart)
-      const created = await apiPost('/products', productData);
+      console.debug('[NewProduct] product payload', productData);
+      
+      await apiPost('/products', productData);
+      
       setSnack({ open: true, msg: `Produit ${publish ? 'publié' : 'enregistré'} avec succès !`, severity: 'success' });
       setTimeout(() => router.push('/dashboard/merchant/products'), 1500);
     } catch (e) {
+      console.error('Erreur:', e);
       setSnack({ open: true, msg: e?.message || 'Erreur lors de la création', severity: 'error' });
     } finally {
       setSaving(false);

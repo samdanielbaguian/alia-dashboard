@@ -26,6 +26,7 @@ import {
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { apiGet } from '@/utils/api';
+import { formatMerchantName, getMerchantInitials } from '@/utils/nameFormatter';
 
 const DRAWER_WIDTH = 280;
 
@@ -140,7 +141,7 @@ export default function MerchantSidebar({ collapsed, onToggle }) {
             <Image
               src="/logos/logos.png"
               alt="Alia - Logo officiel"
-              width={120}
+              width={150}
               height={40}
               style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }}
               priority
@@ -169,11 +170,11 @@ export default function MerchantSidebar({ collapsed, onToggle }) {
               background: 'linear-gradient(135deg, #1976d2, #9c27b0)',
               fontSize: '1rem', fontWeight: 700,
             }}>
-              {(merchantInfo.shop_name || user?.email || 'M')[0].toUpperCase()}
+              {getMerchantInitials(merchantInfo)}
             </Avatar>
             <Box sx={{ overflow: 'hidden' }}>
               <Typography variant="body2" sx={{ fontWeight: 700, color: '#fff', noWrap: true, fontSize: '0.85rem' }}>
-                {merchantInfo.shop_name || 'Ma Boutique'}
+                {formatMerchantName(merchantInfo)}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
                 {[...Array(5)].map((_, i) => (

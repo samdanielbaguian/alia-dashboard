@@ -21,6 +21,7 @@ import {
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { apiGet } from '@/utils/api';
+import { formatUserName, getUserInitials } from '@/utils/nameFormatter';
 
 const DRAWER_WIDTH = 270;
 export { DRAWER_WIDTH };
@@ -59,7 +60,8 @@ export default function CustomerSidebar({ collapsed, onToggle }) {
       ? pathname === path
       : pathname === path || pathname?.startsWith(path + '/');
 
-  const userInitial = (user?.first_name || user?.email || 'A')[0].toUpperCase();
+  const userInitial = getUserInitials(user);
+  const displayName = formatUserName(user);
 
   const itemSx = (active) => ({
     borderRadius: 2,
@@ -149,7 +151,7 @@ export default function CustomerSidebar({ collapsed, onToggle }) {
           </Avatar>
           <Box sx={{ overflow: 'hidden' }}>
             <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: '0.85rem', lineHeight: 1.2 }} noWrap>
-              {user?.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Client Alia'}
+              {displayName}
             </Typography>
             <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem' }} noWrap>
               {user?.email}

@@ -12,10 +12,9 @@ import { useAuth } from '@/hooks/useAuth';
 
 const GREETINGS = ['Bonjour', 'Bienvenue', 'Salut'];
 const SUGGESTIONS = [
-  'Découvrez les offres flash du moment 🔥',
-  'Les boutiques près de chez vous livrent plus vite ⚡',
-  'Nos commerçants locaux vous attendent 🛒',
-  'Profitez des remises exclusives Alia 🎁',
+  'Les boutiques près de chez vous livrent plus vite',
+  'Vos commerçants vous attendent 🛒',
+  'Profitez des remises exclusives Alia',
 ];
 
 function getGreeting() {
@@ -30,7 +29,7 @@ export default function HeroBanner({ userCity }) {
   const router = useRouter();
   const [suggIdx, setSuggIdx] = useState(0);
 
-  const firstName = user?.first_name || user?.username || 'cher client';
+  const firstName = user?.first_name || user?.username;
 
   useEffect(() => {
     const t = setInterval(() => setSuggIdx(i => (i + 1) % SUGGESTIONS.length), 4000);
@@ -76,7 +75,7 @@ export default function HeroBanner({ userCity }) {
           fontSize: { xs: '1.5rem', md: '2rem' },
           mb: 1, lineHeight: 1.2,
         }}>
-          {firstName} 👋
+          {firstName}
           {userCity && (
             <Typography component="span" sx={{ fontSize: '0.9rem', color: 'rgba(199,210,254,0.8)', fontWeight: 500, ml: 1.5 }}>
               📍 {userCity}
@@ -105,7 +104,7 @@ export default function HeroBanner({ userCity }) {
               boxShadow: '0 4px 14px rgba(245,158,11,0.3)',
             }}
           >
-            Voir mes commandes
+            Mes commandes
           </Button>
           <Button
             variant="outlined"

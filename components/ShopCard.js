@@ -24,6 +24,8 @@ export default function ShopCard({ shop, userLocation }) {
   const delivery = estimateDelivery(dist);
   const fmtDist = dist !== null ? (dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`) : null;
 
+  const shopLogo = shop.logo || shop.logo_url;
+
   return (
     <Card
       onMouseEnter={() => setHovered(true)}
@@ -71,8 +73,8 @@ export default function ShopCard({ shop, userLocation }) {
             fontSize: '1.8rem',
             mb: -3.5,
             boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
-          }}>
-            {shop.emoji || <StoreIcon />}
+          }} src={shopLogo}>
+            {!shopLogo && (shop.emoji || <StoreIcon />)}
           </Avatar>
         </Box>
 

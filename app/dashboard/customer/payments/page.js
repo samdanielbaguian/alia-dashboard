@@ -12,7 +12,7 @@ import {
   Payment as PaymentIcon, Download, Visibility, FilterList, Refresh,
 } from '@mui/icons-material';
 import CustomerDashboardLayout from '@/layout/CustomerDashboardLayout';
-import { mockPayments } from '@/utils/mockData';
+import { apiGet } from '@/utils/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -79,14 +79,24 @@ export default function PaymentsPage() {
     setTimeout(() => setToast(t => ({ ...t, show: false })), 3500);
   };
 
-  const fetchPayments = useCallback(() => {
+  const fetchPayments = useCallback(async () => {
     setLoading(true);
-    let filtered = [...mockPayments];
-    if (statusFilter) filtered = filtered.filter(p => p.status === statusFilter);
-    const start = page * PER_PAGE;
-    setTotal(filtered.length);
-    setPayments(filtered.slice(start, start + PER_PAGE));
-    setLoading(false);
+    try {
+      const offset = page * PER_PAGE;
+      const data = await apiGet(`/payments?limit=${PER_PAGE}&offset=${offset}`);
+      const fetched = data.payments || data.items || data || [];
+      let filtered = Array.isArray(fetched) ? fetched : [];
+      if (statusFilter) filtered = filtered.filter(p => p.status === statusFilter);
+      setTotal(data.total || filtered.length);
+      setPayments(filtered);
+    } catch (error) {
+      console.error('Failed to load payments:', error);
+      setPayments([]);
+      setTotal(0);
+      showToast('Impossible de charger les paiements', 'error');
+    } finally {
+      setLoading(false);
+    }
   }, [page, statusFilter]);
 
   useEffect(() => { fetchPayments(); }, [fetchPayments]);

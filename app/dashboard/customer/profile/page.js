@@ -10,7 +10,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
 import CustomerDashboardLayout from '@/layout/CustomerDashboardLayout';
-import { mockProfile } from '@/utils/mockData';
+import { apiGet, apiPut } from '@/utils/api';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -46,48 +46,85 @@ export default function ProfilePage() {
     setTimeout(() => setToast(t => ({ ...t, show: false })), 3500);
   };
 
-  const fetchProfile = useCallback(() => {
+  const fetchProfile = useCallback(async () => {
     setLoading(true);
-    const profile = mockProfile;
-    setInfos({
-      first_name: profile.first_name || '',
-      last_name:  profile.last_name  || '',
-      phone:      profile.phone      || '',
-      birth_date: profile.birth_date || '',
-      bio:        profile.bio        || '',
-    });
-    if (profile.address) setAddress({ ...{ street: '', city: '', country: "Côte d'Ivoire", zip: '' }, ...profile.address });
-    if (profile.preferences) setPrefs(p => ({ ...p, ...profile.preferences }));
-    setLoading(false);
+    try {
+      const data = await apiGet('/customers/me');
+      const profile = data.customer || data || {};
+      setInfos({
+        first_name: profile.first_name || '',
+        last_name:  profile.last_name  || '',
+        phone:      profile.phone      || '',
+        birth_date: profile.birth_date || '',
+        bio:        profile.bio        || '',
+      });
+      if (profile.address) setAddress({ ...{ street: '', city: '', country: "Côte d'Ivoire", zip: '' }, ...profile.address });
+      if (profile.preferences) setPrefs(p => ({ ...p, ...profile.preferences }));
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+      showToast('Impossible de charger le profil', 'error');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchProfile(); }, [fetchProfile]);
 
-  const saveInfos = () => {
+  const saveInfos = async () => {
     setSaving(true);
-    if (setUser) setUser(u => ({ ...u, ...infos }));
-    setTimeout(() => { setSaving(false); showToast('Profil mis à jour avec succès'); }, 400);
+    try {
+      const payload = { ...infos };
+      const res = await apiPut('/customers/me', payload);
+      if (setUser) setUser(u => ({ ...u, ...res }));
+      showToast('Profil mis à jour avec succès');
+    } catch (error) {
+      console.error('Failed to save infos:', error);
+      showToast('Erreur lors de la sauvegarde du profil', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const saveAddress = () => {
+  const saveAddress = async () => {
     setSaving(true);
-    setTimeout(() => { setSaving(false); showToast('Adresse mise à jour avec succès'); }, 400);
+    try {
+      await apiPut('/customers/me', { address });
+      showToast('Adresse mise à jour avec succès');
+    } catch (error) {
+      console.error('Failed to save address:', error);
+      showToast('Erreur lors de la sauvegarde de l\'adresse', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const savePrefs = () => {
+  const savePrefs = async () => {
     setSaving(true);
-    setTimeout(() => { setSaving(false); showToast('Préférences enregistrées'); }, 400);
+    try {
+      await apiPut('/customers/me', { preferences: prefs });
+      showToast('Préférences enregistrées');
+    } catch (error) {
+      console.error('Failed to save prefs:', error);
+      showToast('Erreur lors de la sauvegarde des préférences', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const savePassword = () => {
+  const savePassword = async () => {
     if (passwords.newPass !== passwords.confirm) { showToast('Les mots de passe ne correspondent pas', 'error'); return; }
     if (passwords.newPass.length < 8) { showToast('Le mot de passe doit faire au moins 8 caractères', 'error'); return; }
     setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      await apiPut('/auth/change-password', { old_password: passwords.current, new_password: passwords.newPass });
       setPasswords({ current: '', newPass: '', confirm: '' });
       showToast('Mot de passe modifié avec succès');
-    }, 400);
+    } catch (error) {
+      console.error('Failed to change password:', error);
+      showToast('Erreur lors de la modification du mot de passe', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const userInitial = (infos.first_name || user?.email || 'A')[0].toUpperCase();

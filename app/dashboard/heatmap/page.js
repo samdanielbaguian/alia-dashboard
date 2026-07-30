@@ -10,7 +10,7 @@ import { Box, Typography, Card, CardContent } from '@mui/material';
 import { LocalFireDepartment as HeatmapIcon } from '@mui/icons-material';
 import DashboardLayout from '@/layout/DashboardLayout';
 import SalesHeatmap from '@/components/charts/SalesHeatmap';
-import { heatmapData } from '@/data/mockData';
+const heatmapData = [];
 
 export default function HeatmapPage() {
   return (

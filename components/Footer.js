@@ -11,9 +11,6 @@ import {
 } from '@mui/icons-material';
 import { useTheme } from '@/context/ThemeContext';
 
-const LINKS_COL2 = ['À propos', 'Nos boutiques', 'Devenir marchand', 'Blog', 'Presse'];
-const LINKS_COL3 = ['FAQ', 'Suivi de livraison', 'Retours & remboursements', 'Paiement sécurisé', 'Conditions générales'];
-
 export default function Footer() {
   const { isDarkMode } = useTheme();
   const bg = isDarkMode ? '#0d0d1a' : '#1a1a2e';
@@ -63,11 +60,17 @@ export default function Footer() {
             <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.88rem', mb: 2, textTransform: 'uppercase', letterSpacing: 0.8 }}>
               Liens utiles
             </Typography>
-            {LINKS_COL2.map(link => (
-              <Link key={link} href="#" underline="none"
+            {[
+              { label: 'À propos', href: '/about' },
+              { label: 'Nos boutiques', href: '#' },
+              { label: 'Devenir marchand', href: '#' },
+              { label: 'FAQ', href: '/faq' },
+              { label: 'Contact', href: '/contact' },
+            ].map(link => (
+              <Link key={link.label} href={link.href} underline="none"
                 sx={{ display: 'block', fontSize: '0.83rem', color: 'rgba(255,255,255,0.6)', mb: 1.1,
                   '&:hover': { color: '#4ecdc4', pl: 0.5 }, transition: 'all 0.2s' }}>
-                {link}
+                {link.label}
               </Link>
             ))}
           </Box>
@@ -77,11 +80,17 @@ export default function Footer() {
             <Typography sx={{ fontWeight: 700, color: '#fff', fontSize: '0.88rem', mb: 2, textTransform: 'uppercase', letterSpacing: 0.8 }}>
               Assistance
             </Typography>
-            {LINKS_COL3.map(link => (
-              <Link key={link} href="#" underline="none"
+            {[
+              { label: 'Centre d\'aide', href: '#' },
+              { label: 'Conditions d\'utilisation', href: '/terms' },
+              { label: 'Politique de confidentialité', href: '/privacy' },
+              { label: 'Retours et remboursements', href: '#' },
+              { label: 'Signaler un problème', href: '/contact' },
+            ].map(link => (
+              <Link key={link.label} href={link.href} underline="none"
                 sx={{ display: 'block', fontSize: '0.83rem', color: 'rgba(255,255,255,0.6)', mb: 1.1,
                   '&:hover': { color: '#4ecdc4', pl: 0.5 }, transition: 'all 0.2s' }}>
-                {link}
+                {link.label}
               </Link>
             ))}
           </Box>
@@ -132,10 +141,15 @@ export default function Footer() {
             © {new Date().getFullYear()} Alia Marketplace. Tous droits réservés.
           </Typography>
           <Box sx={{ display: 'flex', gap: 2.5 }}>
-            {['Confidentialité', 'Cookies', 'Accessibilité'].map(l => (
-              <Link key={l} href="#" underline="none"
+            {[
+              { label: 'Confidentialité', href: '/privacy' },
+              { label: 'Conditions d\'utilisation', href: '/terms' },
+              { label: 'Cookies', href: '#' },
+              { label: 'Accessibilité', href: '#' },
+            ].map(l => (
+              <Link key={l.label} href={l.href} underline="none"
                 sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', '&:hover': { color: '#4ecdc4' }, transition: 'color 0.2s' }}>
-                {l}
+                {l.label}
               </Link>
             ))}
           </Box>

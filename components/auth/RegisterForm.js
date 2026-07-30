@@ -197,6 +197,55 @@ export default function RegisterForm({
             sx={fieldSxH52}
           />
 
+          {/* Téléphone optionnel */}
+          <TextField
+            label="Téléphone (optionnel)"
+            name="phone"
+            type="tel"
+            value={formData.phone}
+            onChange={onChange}
+            disabled={loading}
+            fullWidth
+            placeholder="+221771234567"
+            sx={fieldSxH52}
+          />
+
+          {/* Adresse optionnelle */}
+          <TextField
+            label="Adresse (optionnel)"
+            name="address"
+            value={formData.address}
+            onChange={onChange}
+            disabled={loading}
+            fullWidth
+            placeholder="123 Rue de la Paix"
+            sx={fieldSxH52}
+          />
+
+          {/* Ville et Pays */}
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <TextField
+              label="Ville (optionnel)"
+              name="city"
+              value={formData.city}
+              onChange={onChange}
+              disabled={loading}
+              fullWidth
+              placeholder="Dakar"
+              sx={fieldSx}
+            />
+            <TextField
+              label="Pays (optionnel)"
+              name="country"
+              value={formData.country}
+              onChange={onChange}
+              disabled={loading}
+              fullWidth
+              placeholder="Senegal"
+              sx={fieldSx}
+            />
+          </Box>
+
           {/* Submit */}
           <Button
             type="submit"

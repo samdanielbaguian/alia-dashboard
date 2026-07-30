@@ -114,7 +114,14 @@ export default function MerchantStats() {
       apiGet(`/merchants/me/bestsellers?limit=10`),
     ]);
     if (statsRes.status === 'fulfilled') setStats(statsRes.value);
-    if (bsRes.status === 'fulfilled') setBestsellers(bsRes.value?.bestsellers || bsRes.value || []);
+    if (bsRes.status === 'fulfilled') {
+      let bs = bsRes.value?.bestsellers || bsRes.value || [];
+      // Ensure bestsellers is always an array
+      if (!Array.isArray(bs)) {
+        bs = bs?.data || bs?.items || bs?.products || [];
+      }
+      setBestsellers(Array.isArray(bs) ? bs : []);
+    }
     setLoading(false);
   }, [mid, period]);
 
@@ -244,11 +251,11 @@ export default function MerchantStats() {
           <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', mb: 2.5 }}>Top 10 produits</Typography>
-              {loading ? [...Array(5)].map((_, i) => <Skeleton key={i} height={36} sx={{ mb: 1 }} />) : bestsellers.length === 0 ? (
+              {loading ? [...Array(5)].map((_, i) => <Skeleton key={i} height={36} sx={{ mb: 1 }} />) : !Array.isArray(bestsellers) || bestsellers.length === 0 ? (
                 <Typography variant="body2" sx={{ color: '#7f8c8d' }}>Aucune donnée disponible</Typography>
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.8 }}>
-                  {bestsellers.slice(0, 10).map((p, i) => {
+                  {Array.isArray(bestsellers) && bestsellers.slice(0, 10).map((p, i) => {
                     const maxSales = bestsellers[0]?.sales_count || bestsellers[0]?.quantity_sold || 1;
                     const sales = p.sales_count || p.quantity_sold || 0;
                     const pct = Math.round((sales / maxSales) * 100);

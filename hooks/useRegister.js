@@ -31,6 +31,10 @@ export function useRegister() {
     password: '',
     confirmPassword: '',
     age: '',
+    phone: '',
+    address: '',
+    city: '',
+    country: '',
   });
 
   const handleGoogleLogin = () => { window.location.href = 'http://localhost:8000/api/auth/google'; };
@@ -81,6 +85,10 @@ export function useRegister() {
         role: 'buyer',
       };
       if (formData.age && formData.age !== '') body.age = parseInt(formData.age);
+      if (formData.phone && formData.phone !== '') body.phone = formData.phone;
+      if (formData.address && formData.address !== '') body.address = formData.address;
+      if (formData.city && formData.city !== '') body.city = formData.city;
+      if (formData.country && formData.country !== '') body.country = formData.country;
 
       const response = await fetch('http://localhost:8000/api/auth/register', {
         method: 'POST',

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 // Rôles officiels du backend Alia
 const VALID_ROLES = {
+  ADMIN: 'admin',
   MERCHANT: 'merchant',
   BUYER: 'buyer',
 };
@@ -26,6 +27,7 @@ function decodeJWT(token) {
 }
 
 function normalizeRole(role) {
+  if (role === 'admin') return VALID_ROLES.ADMIN;
   if (role === 'merchant') return VALID_ROLES.MERCHANT;
   if (role === 'buyer' || role === 'customer') return VALID_ROLES.BUYER;
   return VALID_ROLES.BUYER; // fallback sécurisé
@@ -100,6 +102,7 @@ export function useAuth() {
   const isLoggedIn = !!token && !!user;
   const isBuyer = user?.role === VALID_ROLES.BUYER;
   const isMerchant = user?.role === VALID_ROLES.MERCHANT;
+  const isAdmin = user?.role === 'admin';
 
   const logout = useCallback(() => {
     localStorage.removeItem('authToken');
@@ -116,6 +119,7 @@ export function useAuth() {
     isLoggedIn,
     isBuyer,
     isMerchant,
+    isAdmin,
     logout,
     setUser,
     setToken,

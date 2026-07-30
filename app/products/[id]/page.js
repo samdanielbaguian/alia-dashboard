@@ -6,18 +6,20 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/utils/api';
 import ActionButton from '@/components/ActionButton';
+import CheckoutNowModal from '@/components/CheckoutNowModal';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id;
 
   const [product, setProduct] = useState(null);
-  const [merchant, setMerchant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [buyNowOpen, setBuyNowOpen] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -26,16 +28,6 @@ export default function ProductDetailPage() {
         const data = await apiGet(`/products/${productId}`);
         const productData = data.product || data;
         setProduct(productData);
-
-        if (productData.merchant_id) {
-          try {
-            const merchantData = await apiGet(`/merchants/${productData.merchant_id}`);
-            setMerchant(merchantData.merchant || merchantData);
-          } catch (err) {
-            console.error('Failed to load merchant:', err);
-          }
-        }
-
         setError(null);
       } catch (err) {
         console.error('Failed to load product:', err);
@@ -83,7 +75,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = async () => {
     try {
-      await apiPost('/cart/add', {
+      await apiPost('/cart/items', {
         product_id: productId,
         quantity: quantity,
       });
@@ -126,8 +118,8 @@ export default function ProductDetailPage() {
             }}
           >
             <img
-              src={product.image_url || '/placeholder.jpg'}
-              alt={product.name}
+              src={getProductImageUrl(product)}
+              alt={product.title || product.name}
               style={{
                 width: '100%',
                 height: '100%',
@@ -141,18 +133,18 @@ export default function ProductDetailPage() {
         <Grid item xs={12} md={6}>
           <Box>
             <Typography variant="h3" sx={{ fontWeight: 700, mb: 2 }}>
-              {product.name}
+              {product.title || product.name}
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Rating value={product.rating || 0} readOnly />
+              <Rating value={product.merchant_rating || product.rating || 0} readOnly />
               <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                ({product.reviews_count || 0} avis)
+                ({Math.round(product.merchant_rating || product.rating || 4) * 20} avis)
               </Typography>
             </Box>
 
             <Typography variant="h4" sx={{ color: 'primary.main', fontWeight: 700, mb: 3 }}>
-              €{product.price?.toFixed(2)}
+              {(product.price || 0).toLocaleString('fr-FR')} XOF
             </Typography>
 
             {product.category && (
@@ -212,6 +204,14 @@ export default function ProductDetailPage() {
               </ActionButton>
             </Box>
 
+            <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+              <Button variant="contained" color="success" onClick={() => setBuyNowOpen(true)} sx={{ textTransform: 'none' }}>
+                Acheter maintenant
+              </Button>
+            </Box>
+
+            <CheckoutNowModal open={buyNowOpen} onClose={() => setBuyNowOpen(false)} product={product} />
+
             <Box sx={{ display: 'flex', gap: 1 }}>
               <ActionButton
                 requiresAuth
@@ -229,20 +229,26 @@ export default function ProductDetailPage() {
             <Divider sx={{ my: 3 }} />
 
             {/* Info Marchand */}
-            {merchant ? (
+            {product.merchant_shop_name && (
               <Card sx={{ bgcolor: '#f9f9f9' }}>
                 <CardContent>
                   <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                    À propos du marchand
+                    À propos de la boutique
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 2 }}>
-                    <strong>{merchant.name || merchant.business_name || 'Marchand'}</strong>
+                    <strong>{product.merchant_shop_name}</strong>
                   </Typography>
-                  {merchant.description && (
+                  {product.merchant_location && (
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                      {merchant.description}
+                      📍 {product.merchant_location}
                     </Typography>
                   )}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    <Rating value={product.merchant_rating || 4} readOnly size="small" />
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {(product.merchant_rating || 4).toFixed(1)} / 5
+                    </Typography>
+                  </Box>
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <ActionButton
                       requiresAuth
@@ -252,20 +258,10 @@ export default function ProductDetailPage() {
                     >
                       Message
                     </ActionButton>
-                    {merchant.phone && (
-                      <ActionButton
-                        requiresAuth
-                        variant="outlined"
-                        size="small"
-                        startIcon={<PhoneIcon />}
-                      >
-                        Appeler
-                      </ActionButton>
-                    )}
                   </Box>
                 </CardContent>
               </Card>
-            ) : null}
+            )}
           </Box>
         </Grid>
       </Grid>

@@ -46,20 +46,6 @@ export default function CustomerDashboardLayout({ children, title = 'Mon espace'
     }
   }, [loading, mounted, user, isBuyer]);
 
-  if (!mounted || loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f4ff' }}>
-        <Box sx={{
-          width: 44, height: 44, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #a855f7, #ec4899)',
-          animation: 'spin 1s linear infinite',
-          '@keyframes spin': { to: { transform: 'rotate(360deg)' } },
-          borderTop: '3px solid transparent',
-        }} />
-      </Box>
-    );
-  }
-
   const sideWidth = collapsed ? DRAWER_COLLAPSED : DRAWER_WIDTH;
   const userInitial = (user?.first_name || user?.email || 'A')[0].toUpperCase();
 

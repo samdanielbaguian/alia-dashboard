@@ -20,13 +20,15 @@ import {
   Logout as LogoutIcon,
 } from '@mui/icons-material';
 import { getAuthUser, removeAuthToken } from '@/utils/api';
+import { formatUserName, getUserInitials } from '@/utils/nameFormatter';
 
 export default function Header() {
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const user = getAuthUser();
-  const userInitial = user?.email?.[0]?.toUpperCase() || 'U';
+  const userInitial = getUserInitials(user);
+  const displayName = formatUserName(user);
 
   useEffect(() => {
     try {
@@ -153,9 +155,14 @@ export default function Header() {
           }}
         >
           <MenuItem disabled>
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {user?.email || 'User'}
-            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, color: '#000' }}>
+                {displayName}
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#666', fontSize: '0.75rem' }}>
+                {user?.email || 'user@example.com'}
+              </Typography>
+            </Box>
           </MenuItem>
           <Divider />
           <MenuItem onClick={handleLogout}>

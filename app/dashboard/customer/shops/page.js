@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Box, Typography, Grid, Alert, Skeleton,
 } from '@mui/material';
@@ -9,7 +9,7 @@ import CustomerDashboardLayout from '@/layout/CustomerDashboardLayout';
 import ShopSortBar from '@/components/ShopSortBar';
 import ShopCard, { ShopCardSkeleton } from '@/components/ShopCard';
 import useGeolocation, { getDistance } from '@/hooks/useGeolocation';
-import { MOCK_SHOPS } from '@/data/mockShops';
+import { apiGet } from '@/utils/api';
 
 function sortShops(shops, criteria) {
   const list = [...shops];
@@ -24,7 +24,6 @@ function sortShops(shops, criteria) {
       return list.sort((a, b) => (b.productsCount ?? 0) - (a.productsCount ?? 0));
     case 'smart':
     default:
-      // Buy Box winners first, puis par distance
       return list.sort((a, b) => {
         if (a.isWinner !== b.isWinner) return a.isWinner ? -1 : 1;
         return (a.distance ?? Infinity) - (b.distance ?? Infinity);
@@ -35,16 +34,58 @@ function sortShops(shops, criteria) {
 export default function ShopsPage() {
   const { location, loading: geoLoading, error: geoError } = useGeolocation();
   const [currentSort, setCurrentSort] = useState('smart');
+  const [shops, setShops] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Ajouter la distance calculée à chaque boutique
+  useEffect(() => {
+    const loadShops = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await apiGet('/merchants?limit=100');
+        const merchants = data.merchants || [];
+        setShops(merchants.map((merchant, index) => {
+          const locationData = merchant.location || {};
+          return {
+            id: merchant.id || merchant.user_id || String(index),
+            name: merchant.shop_name || 'Boutique partenaire',
+            description: merchant.description || 'Boutique partenaire',
+            city: locationData.lat != null && locationData.lng != null
+              ? `Lat ${locationData.lat.toFixed(2)}, Lng ${locationData.lng.toFixed(2)}`
+              : 'Côte d\'Ivoire',
+            category: 'Boutique',
+            rating: merchant.rating ?? 50,
+            reviewsCount: Math.max(0, Math.round((merchant.rating ?? 50) * 2)),
+            productsCount: merchant.products_count ?? 0,
+            revenue: merchant.total_sales ?? 0,
+            isWinner: false,
+            coverColor: 'linear-gradient(135deg,#1e1b4b,#6d28d9)',
+            emoji: '🏬',
+            tags: [],
+            lat: locationData.lat,
+            lng: locationData.lng,
+          };
+        }));
+      } catch (err) {
+        console.error('Failed to load shops:', err);
+        setError('Impossible de charger les boutiques');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadShops();
+  }, []);
+
   const shopsWithDistance = useMemo(() => {
-    return MOCK_SHOPS.map(shop => ({
+    return shops.map(shop => ({
       ...shop,
-      distance: location
+      distance: shop.lat != null && shop.lng != null && location
         ? getDistance(location.lat, location.lng, shop.lat, shop.lng)
         : null,
     }));
-  }, [location]);
+  }, [location, shops]);
 
   const sortedShops = useMemo(
     () => sortShops(shopsWithDistance, currentSort),

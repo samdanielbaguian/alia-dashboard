@@ -20,7 +20,7 @@ import {
   Close as CloseIcon 
 } from '@mui/icons-material';
 import DashboardLayout from '@/layout/DashboardLayout';
-import { alerts } from '@/data/mockData';
+const alerts = [];
 
 export default function AlertsPage() {
   const getSeverity = (type) => {

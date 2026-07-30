@@ -145,6 +145,7 @@ export default function MerchantDashboard() {
   const [activity, setActivity] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [orderStats, setOrderStats] = useState([]);
+  const [dashboardOverview, setDashboardOverview] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
   const mid = user?.id || user?._id;
@@ -153,35 +154,86 @@ export default function MerchantDashboard() {
     if (!mid) return;
     setLoading(true);
     try {
-      const [ov, orders, best, act, alrt, stats] = await Promise.allSettled([
-        apiGet(`/merchants/me/dashboard-overview`),
-        apiGet(`/merchants/me/orders?limit=5`),
-        apiGet(`/merchants/me/bestsellers?limit=4`),
-        apiGet(`/merchants/me/recent-activity?limit=8`),
-        apiGet(`/merchants/me/alerts`),
-        apiGet(`/merchants/me/orders/stats?period=month`),
+      const [merchantRes, productsRes, ordersRes, bestsellersRes, activityRes, alertsRes, statsRes, dashboardRes] = await Promise.allSettled([
+        apiGet('/merchants/me'),
+        apiGet('/merchants/me/products?limit=50'),
+        apiGet('/merchants/me/orders?limit=5'),
+        apiGet('/merchants/me/bestsellers?limit=4'),
+        apiGet('/merchants/me/recent-activity?limit=8'),
+        apiGet('/merchants/me/alerts'),
+        apiGet('/merchants/me/orders/stats?period=month'),
+        apiGet('/merchants/me/dashboard-overview'),
       ]);
-      if (ov.status === 'fulfilled') setOverview(ov.value);
-      if (orders.status === 'fulfilled') setRecentOrders(orders.value?.orders || orders.value || []);
-      if (best.status === 'fulfilled') {
-        const raw = best.value;
+
+      // Process merchant data
+      if (merchantRes.status === 'fulfilled') {
+        const merchant = merchantRes.value.merchant || merchantRes.value;
+        setOverview({
+          total_sales: merchant.total_sales || 0,
+          orders_count: merchant.orders_count || 0,
+          orders_pending: merchant.orders_pending || 0,
+          orders_shipped: merchant.orders_shipped || 0,
+          orders_canceled: merchant.orders_canceled || 0,
+          products_in_stock: merchant.products_in_stock || 0,
+          low_stock: merchant.low_stock || 0,
+          rating: merchant.rating || 4.5,
+        });
+      }
+
+      if (dashboardRes.status === 'fulfilled') {
+        const dashboard = dashboardRes.value;
+        setDashboardOverview({
+          total_platform_fees: dashboard.total_platform_fees || 0,
+          merchant_net_payout: dashboard.merchant_net_payout || 0,
+          total_sales: dashboard.total_sales || 0,
+          orders_count: dashboard.orders_count || 0,
+        });
+      }
+
+      // Process orders
+      if (ordersRes.status === 'fulfilled') {
+        const orders = ordersRes.value?.orders || ordersRes.value || [];
+        setRecentOrders(Array.isArray(orders) ? orders : []);
+      }
+
+      // Process bestsellers
+      if (bestsellersRes.status === 'fulfilled') {
+        const raw = bestsellersRes.value;
         const list = raw?.bestsellers ?? raw?.products ?? raw?.items ?? raw;
         setBestsellers(Array.isArray(list) ? list : []);
       }
-      if (act.status === 'fulfilled') setActivity(act.value?.activities || act.value || []);
-      if (alrt.status === 'fulfilled') setAlerts([...(alrt.value?.alerts || []), ...(alrt.value?.stock_alerts || [])]);
-      if (stats.status === 'fulfilled') setOrderStats(stats.value?.stats || []);
-      setLastUpdated(new Date());
+
+      // Process activity
+      if (activityRes.status === 'fulfilled') {
+        const act = activityRes.value?.activities || activityRes.value || [];
+        setActivity(Array.isArray(act) ? act : []);
+      }
+
+      // Process alerts
+      if (alertsRes.status === 'fulfilled') {
+        const alerts = [...(alertsRes.value?.alerts || []), ...(alertsRes.value?.stock_alerts || [])];
+        setAlerts(alerts);
+      }
+
+      // Process stats
+      if (statsRes.status === 'fulfilled') {
+        const stats = statsRes.value?.stats || statsRes.value || [];
+        setOrderStats(Array.isArray(stats) ? stats : []);
+      }
+    } catch (error) {
+      console.error('Error loading merchant dashboard data:', error);
     } finally {
+      setLastUpdated(new Date());
       setLoading(false);
     }
   }, [mid]);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
   useEffect(() => {
-    const t = setInterval(fetchAll, 30000);
-    return () => clearInterval(t);
-  }, [fetchAll]);
+    if (!mid) return;
+    fetchAll();
+    const interval = setInterval(fetchAll, 30000);
+    return () => clearInterval(interval);
+  }, [mid, fetchAll]);
 
   const donutData = [
     { label: 'En attente', value: overview?.orders_pending || 0, color: '#ff9800' },
@@ -222,6 +274,8 @@ export default function MerchantDashboard() {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {[
           { title: "Chiffre d'affaires", value: `${(overview?.total_sales || 0).toLocaleString('fr-FR')} XOF`, subtitle: 'Toutes périodes', gradient: 'linear-gradient(135deg,#1976d2,#42a5f5)', icon: <AttachMoney sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 12 },
+          { title: 'Frais de plateforme', value: `${(dashboardOverview?.total_platform_fees || 0).toLocaleString('fr-FR')} XOF`, subtitle: 'Frais perçus par la plateforme', gradient: 'linear-gradient(135deg,#f59e0b,#ffb74d)', icon: <Storefront sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 5 },
+          { title: 'Net reversé', value: `${(dashboardOverview?.merchant_net_payout || 0).toLocaleString('fr-FR')} XOF`, subtitle: 'Montant attendu pour le marchand', gradient: 'linear-gradient(135deg,#10b981,#4caf50)', icon: <AttachMoney sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 8 },
           { title: 'Commandes reçues', value: (overview?.orders_count || 0).toLocaleString('fr-FR'), subtitle: `${overview?.orders_pending || 0} en attente`, gradient: 'linear-gradient(135deg,#4caf50,#81c784)', icon: <ShoppingBag sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 8 },
           { title: 'Produits en stock', value: (overview?.products_in_stock || 0).toLocaleString('fr-FR'), subtitle: `${overview?.low_stock || 0} en rupture imminente`, gradient: 'linear-gradient(135deg,#9c27b0,#ce93d8)', icon: <Storefront sx={{ color: '#fff', fontSize: 24 }} />, trend: (overview?.low_stock || 0) > 5 ? 'down' : 'up', tv: 3 },
           { title: 'Note boutique', value: `${((overview?.rating || 50) / 20).toFixed(1)} / 5`, subtitle: 'Score satisfaction client', gradient: 'linear-gradient(135deg,#ff9800,#ffcc02)', icon: <Star sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 2 },

@@ -3,17 +3,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Box, Typography, Card, Chip, Button, IconButton, TextField,
+  Box, Typography, Card, CardContent, Chip, Button, IconButton, TextField,
   Select, MenuItem, FormControl, InputLabel, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, Tooltip,
-  Skeleton, Pagination, InputAdornment, Alert, Grid, CardContent,
+  Skeleton, Pagination, InputAdornment, Alert, Grid,
 } from '@mui/material';
 import {
   Search, FilterList, Visibility, Cancel, Download,
   ShoppingBag, ArrowForward,
 } from '@mui/icons-material';
 import CustomerDashboardLayout from '@/layout/CustomerDashboardLayout';
-import { mockOrders } from '@/utils/mockData';
+import { apiGet, apiPost } from '@/utils/api';
 
 const STATUS_CFG = {
   pending:   { label: 'En attente',  color: '#f59e0b', bg: '#fef3c7' },
@@ -49,31 +49,55 @@ export default function OrdersPage() {
     setTimeout(() => setToast(t => ({ ...t, show: false })), 3000);
   };
 
-  const fetchOrders = useCallback(() => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
-    let filtered = [...mockOrders];
-    if (status) filtered = filtered.filter(o => o.status === status);
-    if (search) filtered = filtered.filter(o =>
-      (o._id || o.id || '').toLowerCase().includes(search.toLowerCase())
-    );
-    if (period === '7d') {
-      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      filtered = filtered.filter(o => new Date(o.created_at).getTime() >= cutoff);
-    } else if (period === '30d') {
-      const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
-      filtered = filtered.filter(o => new Date(o.created_at).getTime() >= cutoff);
+    try {
+      const params = new URLSearchParams();
+      if (status) params.append('status', status);
+      if (search) params.append('q', search);
+      if (period) params.append('period', period);
+      params.append('limit', '100');
+      params.append('skip', '0');
+
+      const data = await apiGet(`/orders/me?${params.toString()}`);
+      const fetched = data.orders || data.items || data || [];
+
+      // client side fallback filters (if backend doesn't support some filters)
+      let filtered = Array.isArray(fetched) ? fetched : [];
+      if (status) filtered = filtered.filter(o => o.status === status);
+      if (search) filtered = filtered.filter(o => (o._id || o.id || '').toLowerCase().includes(search.toLowerCase()));
+      if (period === '7d') {
+        const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        filtered = filtered.filter(o => new Date(o.created_at).getTime() >= cutoff);
+      } else if (period === '30d') {
+        const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+        filtered = filtered.filter(o => new Date(o.created_at).getTime() >= cutoff);
+      }
+
+      const start = (page - 1) * PER_PAGE;
+      setTotal(filtered.length);
+      setOrders(filtered.slice(start, start + PER_PAGE));
+    } catch (error) {
+      console.error('Failed to load orders:', error);
+      setOrders([]);
+      setTotal(0);
+      showToast('Erreur lors du chargement des commandes', 'error');
+    } finally {
+      setLoading(false);
     }
-    const start = (page - 1) * PER_PAGE;
-    setTotal(filtered.length);
-    setOrders(filtered.slice(start, start + PER_PAGE));
-    setLoading(false);
   }, [page, status, period, search]);
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
-  const handleCancel = (orderId) => {
-    setOrders(prev => prev.map(o => (o._id || o.id) === orderId ? { ...o, status: 'cancelled' } : o));
-    showToast('Commande annulée avec succès');
+  const handleCancel = async (orderId) => {
+    try {
+      await apiPost(`/orders/${orderId}/cancel`, { reason: 'Annulation par le client' });
+      setOrders(prev => prev.map(o => (o._id || o.id) === orderId ? { ...o, status: 'cancelled' } : o));
+      showToast('Commande annulée avec succès');
+    } catch (error) {
+      console.error('Failed to cancel order:', error);
+      showToast('Impossible d\'annuler la commande', 'error');
+    }
   };
 
   const exportCSV = () => {

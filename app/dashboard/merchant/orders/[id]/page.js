@@ -14,6 +14,7 @@ import {
 import { useRouter, useParams } from 'next/navigation';
 import MerchantDashboardLayout from '@/layout/MerchantDashboardLayout';
 import { apiGet, apiPost, apiPatch } from '@/utils/api';
+import { getProductImageUrl } from '@/utils/imageUtils';
 import { useAuth } from '@/hooks/useAuth';
 
 const STATUS_STEPS = ['pending', 'confirmed', 'shipped', 'delivered'];
@@ -35,12 +36,13 @@ function StatusBadge({ status }) {
 }
 
 function InfoRow({ icon, label, value }) {
+  const displayValue = value === undefined || value === null || value === '' ? 'Non renseigné' : value;
   return (
     <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, py: 1 }}>
       <Box sx={{ color: '#7f8c8d', mt: 0.2 }}>{icon}</Box>
       <Box>
         <Typography variant="caption" sx={{ color: '#7f8c8d', fontSize: '0.72rem', display: 'block' }}>{label}</Typography>
-        <Typography variant="body2" sx={{ fontWeight: 600, color: '#2c3e50' }}>{value || '—'}</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 600, color: '#2c3e50' }}>{displayValue}</Typography>
       </Box>
     </Box>
   );
@@ -116,6 +118,12 @@ export default function OrderDetail() {
   const products = order.products || order.items || [];
   const delivery = order.delivery_address || {};
   const history = order.status_history || order.history || [];
+  const customer = order.customer || {};
+  const customerName = customer.full_name || [customer.first_name, customer.last_name].filter(Boolean).join(' ') || order.buyer_name || order.user_name || 'Non renseigné';
+  const customerPhone = customer.phone || order.buyer_phone || delivery.phone || 'Non renseigné';
+  const customerAddress = order.shipping_address || delivery.address || delivery.street || 'Non renseigné';
+  const customerCity = customer.city || delivery.city || 'Non renseigné';
+  const customerCountry = customer.country || delivery.country || 'Non renseigné';
 
   const subtotal = products.reduce((acc, p) => acc + (p.price || p.unit_price || 0) * (p.quantity || p.qty || 1), 0);
   const shipping = order.shipping_fee || 0;
@@ -210,8 +218,8 @@ export default function OrderDetail() {
                   <Box key={i}>
                     <Box sx={{ display: 'flex', gap: 2, py: 1.5, alignItems: 'center' }}>
                       <Box sx={{ width: 56, height: 56, borderRadius: 2, overflow: 'hidden', flexShrink: 0, bgcolor: '#f5f7fa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {p.image_url || p.image ? (
-                          <img src={p.image_url || p.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        {getProductImageUrl(p) ? (
+                          <img src={getProductImageUrl(p)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           <Inventory sx={{ color: '#b0b0b0', fontSize: 28 }} />
                         )}
@@ -291,13 +299,14 @@ export default function OrderDetail() {
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Person sx={{ color: '#4caf50' }} /> Client
               </Typography>
-              <InfoRow icon={<Person sx={{ fontSize: 18 }} />} label="Nom" value={order.buyer_name || order.user_name} />
-              <InfoRow icon={<Phone sx={{ fontSize: 18 }} />} label="Téléphone" value={order.buyer_phone || delivery.phone} />
+              <InfoRow icon={<Person sx={{ fontSize: 18 }} />} label="Nom" value={customerName} />
+              <InfoRow icon={<Phone sx={{ fontSize: 18 }} />} label="Téléphone" value={customerPhone} />
+              <InfoRow icon={<Info sx={{ fontSize: 18 }} />} label="Email" value={customer.email || 'Non renseigné'} />
               <Divider sx={{ my: 1 }} />
               <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#2c3e50', mb: 1 }}>Adresse de livraison</Typography>
-              <InfoRow icon={<Home sx={{ fontSize: 18 }} />} label="Adresse" value={delivery.address || delivery.street} />
-              <InfoRow icon={<Info sx={{ fontSize: 18 }} />} label="Ville" value={delivery.city} />
-              <InfoRow icon={<Info sx={{ fontSize: 18 }} />} label="Pays" value={delivery.country} />
+              <InfoRow icon={<Home sx={{ fontSize: 18 }} />} label="Adresse" value={customerAddress} />
+              <InfoRow icon={<Info sx={{ fontSize: 18 }} />} label="Ville" value={customerCity} />
+              <InfoRow icon={<Info sx={{ fontSize: 18 }} />} label="Pays" value={customerCountry} />
             </CardContent>
           </Card>
 
@@ -310,6 +319,15 @@ export default function OrderDetail() {
               <InfoRow icon={<MonetizationOn sx={{ fontSize: 18 }} />} label="Méthode" value={order.payment_method} />
               <InfoRow icon={<CheckCircle sx={{ fontSize: 18 }} />} label="Statut paiement" value={order.payment_status} />
               <InfoRow icon={<MonetizationOn sx={{ fontSize: 18 }} />} label="Montant" value={`${(order.total_amount || 0).toLocaleString('fr-FR')} XOF`} />
+              {order.platform_fee != null && (
+                <InfoRow icon={<MonetizationOn sx={{ fontSize: 18 }} />} label="Frais de plateforme" value={`${order.platform_fee.toLocaleString('fr-FR')} XOF`} />
+              )}
+              {order.payment_gateway_fee != null && (
+                <InfoRow icon={<MonetizationOn sx={{ fontSize: 18 }} />} label="Frais passerelle" value={`${order.payment_gateway_fee.toLocaleString('fr-FR')} XOF`} />
+              )}
+              {order.merchant_payout != null && (
+                <InfoRow icon={<MonetizationOn sx={{ fontSize: 18 }} />} label="Net reversé" value={`${order.merchant_payout.toLocaleString('fr-FR')} XOF`} />
+              )}
             </CardContent>
           </Card>
 

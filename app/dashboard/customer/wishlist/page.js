@@ -12,13 +12,14 @@ import {
   ArrowForward, Add,
 } from '@mui/icons-material';
 import CustomerDashboardLayout from '@/layout/CustomerDashboardLayout';
-import { mockWishlist } from '@/utils/mockData';
+import { apiGet, apiDelete, apiPost } from '@/utils/api';
+import { getProductImageUrl } from '@/utils/imageUtils';
 
 function WishlistCard({ item, onRemove, onAddToCart }) {
   const product = item.product || item;
   const name    = product?.name || product?.title || 'Produit';
   const price   = product?.price || product?.base_price || 0;
-  const image   = product?.images?.[0] || product?.image_url;
+  const image   = getProductImageUrl(product);
   const itemId  = item._id || item.id || product?._id || product?.id;
 
   return (
@@ -73,8 +74,8 @@ function WishlistCard({ item, onRemove, onAddToCart }) {
 
 export default function WishlistPage() {
   const router = useRouter();
-  const [items, setItems]         = useState(mockWishlist);
-  const [loading, setLoading]     = useState(false);
+  const [items, setItems]         = useState([]);
+  const [loading, setLoading]     = useState(true);
   const [addingAll, setAddingAll] = useState(false);
   const [toast, setToast]         = useState({ show: false, msg: '', sev: 'info' });
   const [confirmId, setConfirmId] = useState(null);
@@ -84,31 +85,73 @@ export default function WishlistPage() {
     setTimeout(() => setToast(t => ({ ...t, show: false })), 3000);
   };
 
-  const fetchWishlist = useCallback(() => {
-    setItems(mockWishlist);
+  const fetchWishlist = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await apiGet('/customers/me/wishlist');
+      setItems(data.wishlist || []);
+    } catch (error) {
+      console.error('Failed to load wishlist:', error);
+      showToast('Impossible de charger la wishlist', 'error');
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchWishlist(); }, [fetchWishlist]);
 
-  const handleRemove = (itemId) => {
+  const handleRemove = async (itemId) => {
     setConfirmId(null);
-    setItems(prev => prev.filter(i => (i._id || i.id) !== itemId));
-    showToast('Article retiré de la wishlist');
+    try {
+      await apiDelete(`/customers/me/wishlist/${itemId}`);
+      setItems(prev => prev.filter(i => (i._id || i.id) !== itemId));
+      showToast('Article retiré de la wishlist');
+    } catch (error) {
+      console.error('Failed to remove wishlist item:', error);
+      showToast('Impossible de retirer cet article', 'error');
+    }
   };
 
-  const handleAddToCart = (item) => {
+  const handleAddToCart = async (item) => {
     const product = item.product || item;
-    showToast(`"é${product?.name || 'Produit'}" ajouté au panier`);
+    const productId = product.id || product._id;
+    if (!productId) {
+      showToast('Produit invalide', 'error');
+      return;
+    }
+
+    try {
+      await apiPost('/cart/items', { product_id: productId, quantity: 1 });
+      showToast(`"${product?.name || 'Produit'}" ajouté au panier`);
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      showToast('Impossible d\'ajouter cet article au panier', 'error');
+    }
   };
 
-  const handleAddAll = () => {
+  const handleAddAll = async () => {
     setAddingAll(true);
-    const count = items.length;
-    setTimeout(() => {
-      setAddingAll(false);
+    try {
+      const batch = items.map(item => {
+        const product = item.product || item;
+        const productId = product.id || product._id;
+        if (!productId) return null;
+        return apiPost('/cart/items', { product_id: productId, quantity: 1 });
+      }).filter(Boolean);
+
+      await Promise.all(batch);
+      const count = items.length;
       showToast(`${count} article${count > 1 ? 's' : ''} ajouté${count > 1 ? 's' : ''} au panier`);
-      if (count > 0) setTimeout(() => router.push('/dashboard/customer/cart'), 1500);
-    }, 300);
+      if (count > 0) {
+        setTimeout(() => router.push('/dashboard/customer/cart'), 1500);
+      }
+    } catch (error) {
+      console.error('Failed to add all items to cart:', error);
+      showToast('Erreur lors de l\'ajout des articles au panier', 'error');
+    } finally {
+      setAddingAll(false);
+    }
   };
 
   return (
