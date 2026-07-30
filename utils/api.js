@@ -183,3 +183,27 @@ export async function apiPatch(endpoint, data) {
 export async function apiDelete(endpoint) {
   return apiRequest(endpoint, { method: 'DELETE' });
 }
+
+/**
+ * Upload files (multipart/form-data) to the uploads endpoint.
+ * Expects server route POST /uploads that returns { urls: [..] }
+ */
+export async function apiUploadFiles(files = []) {
+  const url = `${API_BASE_URL}/uploads`;
+  try {
+    const form = new FormData();
+    files.forEach((f) => form.append('files', f));
+
+    const headers = {
+      ...getAuthHeaders(),
+      // Do not set Content-Type so browser sets the multipart boundary
+    };
+
+    const res = await fetch(url, { method: 'POST', headers, body: form });
+    if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('File upload failed', err);
+    throw err;
+  }
+}

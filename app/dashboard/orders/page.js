@@ -3,7 +3,7 @@
  * Displays and manages all orders
  */
 
-'use client';
+"use client";
 
 import { Box, Typography, Button, Grid, Card, CardContent, CircularProgress } from '@mui/material';
 import { GetApp as ExportIcon, ShoppingCart as OrderIcon } from '@mui/icons-material';
@@ -11,6 +11,9 @@ import DashboardLayout from '@/layout/DashboardLayout';
 import DataTable from '@/components/tables/DataTable';
 import { useEffect, useState } from 'react';
 import { apiGet } from '@/utils/api';
+import React, { useEffect, useState } from "react";
+import OrderRow from "./components/OrderRow";
+import * as adminApi from "../../../../utils/adminApi";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -74,6 +77,26 @@ export default function OrdersPage() {
         return `"${stringValue.replace(/"/g, '""')}"`;
       }
       return stringValue;
+export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    adminApi
+      .listOrders()
+      .then((data) => {
+        if (!mounted) return;
+        setOrders(data || []);
+      })
+      .catch((err) => {
+        setError(err?.message || "Failed to load orders");
+      })
+      .finally(() => mounted && setLoading(false));
+    return () => {
+      mounted = false;
     };
 
     const csvContent = orders.map(order => {
@@ -111,6 +134,15 @@ export default function OrdersPage() {
       </DashboardLayout>
     );
   }
+  }, []);
+
+  const removeOrUpdate = (orderId, updated) => {
+    setOrders((prev) => prev?.map((o) => (o._id === orderId ? { ...o, ...updated } : o)));
+  };
+
+  if (loading) return <div>Loading orders…</div>;
+  if (error) return <div style={{ color: "red" }}>{error}</div>;
+  if (!orders || orders.length === 0) return <div>No orders found.</div>;
 
   return (
     <DashboardLayout>
