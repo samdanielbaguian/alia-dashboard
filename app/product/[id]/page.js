@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import DashboardLayout from '@/layout/DashboardLayout';
 
 export async function generateMetadata({ params }) {
@@ -73,9 +74,9 @@ export default async function ProductPage({ params }) {
             <p style={{fontSize:18, fontWeight:600}}>{p.price} USD</p>
             <p>{p.description}</p>
             {storeSlug ? (
-              <a href={`/store/${storeSlug}`}><button style={{padding:'10px 16px', background:'#1976d2', color:'#fff', border:'none', borderRadius:6}}>View merchant store</button></a>
+              <Link href={`/store/${storeSlug}`}><button style={{padding:'10px 16px', background:'#1976d2', color:'#fff', border:'none', borderRadius:6}}>View merchant store</button></Link>
             ) : (
-              <a href="/store"><button style={{padding:'10px 16px', background:'#1976d2', color:'#fff', border:'none', borderRadius:6}}>View merchant store</button></a>
+              <Link href="/store"><button style={{padding:'10px 16px', background:'#1976d2', color:'#fff', border:'none', borderRadius:6}}>View merchant store</button></Link>
             )}
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
           </div>

@@ -62,7 +62,7 @@ export default function RegisterForm({
               alt="Alia"
               width={100}
               height={35}
-              style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }}
+              style={{ objectFit: 'contain', maxWidth: '100%', width: 'auto', height: 'auto' }}
               priority
             />
           </Box>

@@ -105,7 +105,7 @@ export default function BrandingSide({
             alt="Alia E-commerce"
             width={400}
             height={200}
-            style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }}
+            style={{ objectFit: 'contain', maxWidth: '100%', width: 'auto', height: 'auto' }}
             priority
           />
         </Box>

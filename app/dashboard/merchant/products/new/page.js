@@ -47,7 +47,11 @@ export default function NewProduct() {
   };
 
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 5 - images.length);
+    const files = Array.from(e.target.files).filter((file) => {
+      const validType = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type);
+      const validSize = file.size <= 5 * 1024 * 1024;
+      return validType && validSize;
+    }).slice(0, 5 - images.length);
     setImages(prev => [...prev, ...files]);
     files.forEach(file => {
       const reader = new FileReader();
@@ -118,7 +122,14 @@ export default function NewProduct() {
         stock: Number(form.stock_quantity),
         images: imageUrls,
         sku: form.sku || null,
-        size: form.brand ? undefined : null,
+        brand: form.brand.trim() || null,
+        condition: form.condition || 'Neuf',
+        shipping_fee: Number(form.shipping_fee || 0),
+        min_order_quantity: Number(form.min_order_quantity || 1),
+        max_order_quantity: form.max_order_quantity ? Number(form.max_order_quantity) : null,
+        tags,
+        is_active: form.is_active,
+        size: null,
         color: null,
         weight: form.weight ? Number(form.weight) : null,
         delivery_days: parseInt(form.shipping_delay) || 3,
@@ -283,7 +294,7 @@ export default function NewProduct() {
                 {priceNum > 0 && (
                   <Grid size={{ xs: 12 }}>
                     <Box sx={{ p: 2, bgcolor: '#f0f7ff', borderRadius: 2, border: '1px solid #e3f2fd' }}>
-                      <Typography variant="body2" sx={{ color: '#1976d2', fontWeight: 600 }}>
+                      <Typography variant="body2" component="div" sx={{ color: '#1976d2', fontWeight: 600 }}>
                         Prix affiché : {priceNum.toLocaleString('fr-FR')} XOF
                         {discount > 0 && <Chip label={`-${discount}%`} size="small" sx={{ ml: 1, bgcolor: '#e8f5e9', color: '#4caf50', fontWeight: 700 }} />}
                       </Typography>

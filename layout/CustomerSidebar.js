@@ -128,7 +128,7 @@ export default function CustomerSidebar({ collapsed, onToggle }) {
               alt="Alia - Logo officiel"
               width={120}
               height={40}
-              style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto', marginBottom: 4 }}
+              style={{ objectFit: 'contain', maxWidth: '100%', width: 'auto', height: 'auto', marginBottom: 4 }}
               priority
             />
             <Typography sx={{ fontSize: 8, color: 'rgba(255,255,255,0.45)', letterSpacing: '3.5px', fontWeight: 600, mt: 0.3 }}>

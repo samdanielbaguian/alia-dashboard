@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import {
   Box, Card, CardContent, Typography, Button, Chip, TextField, InputAdornment,
   Select, MenuItem, FormControl, InputLabel, Table, TableBody, TableCell,
@@ -54,7 +54,7 @@ function SortHeader({ label, field, sort, setSort }) {
 
 const LIMIT = 15;
 
-export default function MerchantOrders() {
+function MerchantOrdersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -339,6 +339,14 @@ export default function MerchantOrders() {
         </Alert>
       </Snackbar>
     </MerchantDashboardLayout>
+  );
+}
+
+export default function MerchantOrders() {
+  return (
+    <Suspense fallback={null}>
+      <MerchantOrdersContent />
+    </Suspense>
   );
 }
 

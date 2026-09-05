@@ -2,6 +2,16 @@
 
 import { useState } from 'react';
 
+// Convert FastAPI validation errors (array of {msg,...}) or plain strings into a displayable message
+function extractErrorMessage(detail, fallback) {
+  if (!detail) return fallback;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail.map((e) => e?.msg || JSON.stringify(e)).join(' ');
+  }
+  return fallback;
+}
+
 function decodeJWT(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -109,7 +119,7 @@ export function useLogin() {
       console.log('📦 Données reçues:', data);
 
       if (!response.ok) {
-        const errorMsg = data?.detail || data?.message || 'Erreur de connexion';
+        const errorMsg = extractErrorMessage(data?.detail, data?.message || 'Erreur de connexion');
         console.error('❌ Erreur API:', errorMsg);
         setError(errorMsg);
         setLoading(false);

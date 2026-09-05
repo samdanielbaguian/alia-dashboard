@@ -1,15 +1,16 @@
 'use client';
 
 import { Box, Container, Grid, Typography, Rating, Button, CircularProgress, Card, CardContent, Divider, Chip, Alert } from '@mui/material';
-import { Phone as PhoneIcon, Message as MessageIcon, Favorite as FavoriteIcon, FavoriteBorder as FavoriteBorderIcon } from '@mui/icons-material';
+import { Phone as PhoneIcon, Message as MessageIcon, Favorite as FavoriteIcon, FavoriteBorder as FavoriteBorderIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/utils/api';
 import ActionButton from '@/components/ActionButton';
 import CheckoutNowModal from '@/components/CheckoutNowModal';
 import { getProductImageUrl } from '@/utils/imageUtils';
 
 export default function ProductDetailPage() {
+  const router = useRouter();
   const params = useParams();
   const productId = params.id;
 
@@ -103,6 +104,9 @@ export default function ProductDetailPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Button startIcon={<ArrowBackIcon />} onClick={() => (window.history.length > 1 ? router.back() : router.push('/'))} sx={{ mb: 2, textTransform: 'none' }}>
+        Retour
+      </Button>
       <Grid container spacing={4}>
         {/* Image du produit */}
         <Grid item xs={12} md={6}>

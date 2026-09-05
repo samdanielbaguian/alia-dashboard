@@ -56,7 +56,6 @@ export default function OrderDetail() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
-  const [trackingInput, setTrackingInput] = useState('');
   const [showTrackingDialog, setShowTrackingDialog] = useState(false);
   const [snack, setSnack] = useState({ open: false, msg: '', severity: 'success' });
 
@@ -78,10 +77,11 @@ export default function OrderDetail() {
   const doAction = async (action, extra = {}) => {
     setActing(true);
     try {
-      await apiPost(`/orders/${orderId}/${action}`, extra);
+      const result = await apiPost(`/orders/${orderId}/${action}`, extra);
+      const trackingMsg = action === 'ship' && result?.tracking_number ? ` (N° suivi : ${result.tracking_number})` : '';
       setSnack({
         open: true,
-        msg: action === 'confirm' ? 'Commande confirmée !' : action === 'ship' ? 'Commande marquée expédiée !' : action === 'deliver' ? 'Commande marquée livrée !' : 'Commande annulée.',
+        msg: (action === 'confirm' ? 'Commande confirmée !' : action === 'ship' ? 'Commande marquée expédiée !' : action === 'deliver' ? 'Commande marquée livrée !' : 'Commande annulée.') + trackingMsg,
         severity: action === 'cancel' ? 'warning' : 'success',
       });
       fetchOrder();
@@ -351,15 +351,13 @@ export default function OrderDetail() {
         PaperProps={{ sx: { borderRadius: 3 } }}>
         <DialogTitle sx={{ fontWeight: 800, color: '#2c3e50' }}>Marquer comme expédiée</DialogTitle>
         <DialogContent>
-          <Typography variant="body2" sx={{ color: '#7f8c8d', mb: 2.5 }}>Optionnellement, entrez un numéro de suivi.</Typography>
-          <TextField fullWidth label="Numéro de suivi (optionnel)" value={trackingInput}
-            onChange={e => setTrackingInput(e.target.value)}
-            placeholder="ex: TK1234567890FR"
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }} />
+          <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
+            Un numéro de suivi sera généré automatiquement lors de la confirmation.
+          </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 2.5, gap: 1 }}>
           <Button onClick={() => setShowTrackingDialog(false)} sx={{ borderRadius: 2 }}>Annuler</Button>
-          <Button variant="contained" onClick={() => doAction('ship', { tracking_number: trackingInput || undefined })} disabled={acting}
+          <Button variant="contained" onClick={() => doAction('ship')} disabled={acting}
             sx={{ borderRadius: 2, background: 'linear-gradient(135deg,#9c27b0,#ba68c8)', fontWeight: 700 }}>
             {acting ? 'En cours...' : 'Confirmer expédition'}
           </Button>

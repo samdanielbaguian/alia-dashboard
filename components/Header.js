@@ -82,7 +82,7 @@ export default function Header({ searchTerm, onSearchChange, cartCount = 0, wish
               alt="Alia Marketplace"
               width={100}
               height={36}
-              style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }}
+              style={{ objectFit: 'contain', maxWidth: '100%', width: 'auto', height: 'auto' }}
               priority
             />
           </Box>

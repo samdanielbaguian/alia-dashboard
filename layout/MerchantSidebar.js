@@ -143,7 +143,7 @@ export default function MerchantSidebar({ collapsed, onToggle }) {
               alt="Alia - Logo officiel"
               width={150}
               height={40}
-              style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto' }}
+              style={{ objectFit: 'contain', maxWidth: '100%', width: 'auto', height: 'auto' }}
               priority
             />
             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', mt: 0.3 }}>

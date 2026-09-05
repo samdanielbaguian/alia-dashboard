@@ -49,7 +49,7 @@ function StockBar({ stock, maxStock = 100 }) {
   );
 }
 
-function ProductCard({ product, onEdit, onDelete, onView }) {
+function ProductCard({ product, onEdit, onDelete }) {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const price = product.price || product.merchant_price || 0;
   const stock = product.stock_quantity ?? product.stock ?? 0;
@@ -84,7 +84,14 @@ function ProductCard({ product, onEdit, onDelete, onView }) {
         </IconButton>
         <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}
           PaperProps={{ sx: { borderRadius: 2, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', minWidth: 160 } }}>
-          <MenuItem onClick={() => { setMenuAnchor(null); onView(product); }} sx={{ fontSize: '0.85rem', gap: 1.5 }}>
+          <MenuItem
+            component="a"
+            href={`/products/${product.id || product._id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMenuAnchor(null)}
+            sx={{ fontSize: '0.85rem', gap: 1.5 }}
+          >
             <Visibility sx={{ fontSize: 16, color: '#7f8c8d' }} /> Aperçu
           </MenuItem>
           <MenuItem onClick={() => { setMenuAnchor(null); onEdit(product); }} sx={{ fontSize: '0.85rem', gap: 1.5 }}>
@@ -351,7 +358,6 @@ export default function MerchantProducts() {
                 product={product}
                 onEdit={p => router.push(`/dashboard/merchant/products/${p.id || p._id}/edit`)}
                 onDelete={setDeleteProduct}
-                onView={p => router.push(`/products/${p.id || p._id}`)}
               />
             </Grid>
           ))}

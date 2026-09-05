@@ -84,7 +84,8 @@ export default function CustomerDashboardLayout({ children, title = 'Mon espace'
               alt="Alia"
               width={32}
               height={32}
-              style={{ objectFit: 'contain' }}
+              style={{ objectFit: 'contain', width: 'auto', height: 'auto' }}
+              priority
             />
           </Box>
           <Typography variant="h6" sx={{ fontWeight: 700, color: '#1e1b4b', flexShrink: 0 }}>

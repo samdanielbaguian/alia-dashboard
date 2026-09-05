@@ -26,11 +26,13 @@ export default function MerchantDashboardLayout({ children, title = 'Dashboard' 
   const [collapsed, setCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [currentDate, setCurrentDate] = useState(null);
   const router = useRouter();
   const { user, isMerchant, loading, logout } = useAuth();
 
   useEffect(() => {
     setMounted(true);
+    setCurrentDate(new Date());
     const saved = localStorage.getItem('merchantSidebarCollapsed');
     if (saved !== null) setCollapsed(JSON.parse(saved));
   }, []);
@@ -81,18 +83,21 @@ export default function MerchantDashboardLayout({ children, title = 'Dashboard' 
               <Image
                 src="/icons/icons.png"
                 alt="Alia"
-                width={150}
-                height={75}
-                style={{ objectFit: 'contain' }}
+                width={90}
+                height={45}
+                style={{ objectFit: 'contain', width: 'auto', height: '45px', maxHeight: 45 }}
+                priority
               />
             </Box>
             {/* Breadcrumb / Title */}
-            <Box sx={{ flexGrow: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#2c3e50', fontSize: '1.1rem' }}>
+            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+              <Typography variant="h6" noWrap sx={{ fontWeight: 700, color: '#2c3e50', fontSize: '1.1rem' }}>
                 {title}
               </Typography>
               <Typography variant="caption" sx={{ color: '#7f8c8d' }}>
-                {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                {currentDate
+                  ? currentDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                  : ' '}
               </Typography>
             </Box>
 
@@ -138,8 +143,8 @@ export default function MerchantDashboardLayout({ children, title = 'Dashboard' 
               <Avatar sx={{ width: 34, height: 34, background: 'linear-gradient(135deg, #1976d2, #9c27b0)', fontSize: '0.85rem', fontWeight: 700 }}>
                 {userInitial}
               </Avatar>
-              <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#2c3e50', lineHeight: 1.2, fontSize: '0.82rem' }}>
+              <Box sx={{ display: { xs: 'none', md: 'block' }, maxWidth: 140, overflow: 'hidden' }}>
+                <Typography variant="body2" noWrap sx={{ fontWeight: 600, color: '#2c3e50', lineHeight: 1.2, fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {user?.email?.split('@')[0] || 'Marchand'}
                 </Typography>
                 <Chip label="Marchand" size="small" sx={{ height: 16, fontSize: '0.6rem', bgcolor: 'rgba(25,118,210,0.1)', color: '#1976d2', fontWeight: 600 }} />

@@ -134,6 +134,12 @@ function StatusBadge({ status }) {
   return <Chip label={c.label} size="small" sx={{ bgcolor: c.bg, color: c.color, fontWeight: 600, fontSize: '0.72rem', height: 24 }} />;
 }
 
+function formatRating(rating) {
+  const numericRating = Number(rating);
+  if (!Number.isFinite(numericRating)) return '0.0';
+  return (numericRating > 5 ? numericRating / 20 : numericRating).toFixed(1);
+}
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function MerchantDashboard() {
   const router = useRouter();
@@ -146,7 +152,7 @@ export default function MerchantDashboard() {
   const [alerts, setAlerts] = useState([]);
   const [orderStats, setOrderStats] = useState([]);
   const [dashboardOverview, setDashboardOverview] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   const mid = user?.id || user?._id;
 
@@ -162,7 +168,7 @@ export default function MerchantDashboard() {
         apiGet('/merchants/me/recent-activity?limit=8'),
         apiGet('/merchants/me/alerts'),
         apiGet('/merchants/me/orders/stats?period=month'),
-        apiGet('/merchants/me/dashboard-overview'),
+        apiGet(`/merchants/${mid}/dashboard`),
       ]);
 
       // Process merchant data
@@ -188,6 +194,24 @@ export default function MerchantDashboard() {
           total_sales: dashboard.total_sales || 0,
           orders_count: dashboard.orders_count || 0,
         });
+        setOverview((current) => ({
+          ...current,
+          total_sales: dashboard.total_sales ?? dashboard.revenue ?? current?.total_sales ?? 0,
+          orders_count: dashboard.orders_count ?? current?.orders_count ?? 0,
+          orders_pending: dashboard.pending_orders_count ?? current?.orders_pending ?? 0,
+          orders_shipped: dashboard.orders_by_status?.shipped ?? current?.orders_shipped ?? 0,
+          orders_canceled: dashboard.orders_by_status?.cancelled ?? current?.orders_canceled ?? 0,
+        }));
+      }
+
+      if (productsRes.status === 'fulfilled') {
+        const products = productsRes.value?.products || productsRes.value || [];
+        const productList = Array.isArray(products) ? products : [];
+        setOverview((current) => ({
+          ...current,
+          products_in_stock: productList.filter((product) => (product.stock || 0) > 0).length,
+          low_stock: productList.filter((product) => (product.stock || 0) > 0 && (product.stock || 0) <= 5).length,
+        }));
       }
 
       // Process orders
@@ -261,7 +285,9 @@ export default function MerchantDashboard() {
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#2c3e50' }}>Vue d&apos;ensemble</Typography>
           <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
-            Mis à jour à {lastUpdated.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            {lastUpdated
+              ? `Mis à jour à ${lastUpdated.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`
+              : 'Chargement des données...'}
           </Typography>
         </Box>
         <Button variant="outlined" startIcon={<Refresh />} onClick={fetchAll} disabled={loading}
@@ -278,7 +304,7 @@ export default function MerchantDashboard() {
           { title: 'Net reversé', value: `${(dashboardOverview?.merchant_net_payout || 0).toLocaleString('fr-FR')} XOF`, subtitle: 'Montant attendu pour le marchand', gradient: 'linear-gradient(135deg,#10b981,#4caf50)', icon: <AttachMoney sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 8 },
           { title: 'Commandes reçues', value: (overview?.orders_count || 0).toLocaleString('fr-FR'), subtitle: `${overview?.orders_pending || 0} en attente`, gradient: 'linear-gradient(135deg,#4caf50,#81c784)', icon: <ShoppingBag sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 8 },
           { title: 'Produits en stock', value: (overview?.products_in_stock || 0).toLocaleString('fr-FR'), subtitle: `${overview?.low_stock || 0} en rupture imminente`, gradient: 'linear-gradient(135deg,#9c27b0,#ce93d8)', icon: <Storefront sx={{ color: '#fff', fontSize: 24 }} />, trend: (overview?.low_stock || 0) > 5 ? 'down' : 'up', tv: 3 },
-          { title: 'Note boutique', value: `${((overview?.rating || 50) / 20).toFixed(1)} / 5`, subtitle: 'Score satisfaction client', gradient: 'linear-gradient(135deg,#ff9800,#ffcc02)', icon: <Star sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 2 },
+          { title: 'Note boutique', value: `${formatRating(overview?.rating)} / 5`, subtitle: 'Score satisfaction client', gradient: 'linear-gradient(135deg,#ff9800,#ffcc02)', icon: <Star sx={{ color: '#fff', fontSize: 24 }} />, trend: 'up', tv: 2 },
         ].map((kpi, i) => (
           <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
             <KpiCard loading={loading} title={kpi.title} value={kpi.value} subtitle={kpi.subtitle}

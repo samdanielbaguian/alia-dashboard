@@ -20,6 +20,15 @@ const PERIODS = [
   { value: '12m',  label: '12 derniers mois' },
 ];
 
+function getPeriodDates(period) {
+  const end = new Date();
+  const start = new Date(end);
+  const days = period === '7d' ? 7 : period === '90d' ? 90 : period === '12m' ? 365 : 30;
+  start.setDate(start.getDate() - days + 1);
+  const toIsoDate = (date) => date.toISOString().slice(0, 10);
+  return { from: toIsoDate(start), to: toIsoDate(end) };
+}
+
 // Pure SVG donut chart — no external lib
 function DonutChart({ data = [], size = 160 }) {
   if (!data?.length) return <Box sx={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Typography variant="caption" sx={{ color: '#b0b0b0' }}>Aucune donnée</Typography></Box>;
@@ -103,24 +112,28 @@ export default function MerchantStats() {
   const [period, setPeriod] = useState('30d');
   const [stats, setStats] = useState(null);
   const [bestsellers, setBestsellers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const mid = user?.id || user?._id;
 
   const fetchStats = useCallback(async () => {
     if (!mid) return;
     setLoading(true);
+    const dates = getPeriodDates(period);
     const [statsRes, bsRes] = await Promise.allSettled([
-      apiGet(`/merchants/me/orders/stats?period=${period}`),
-      apiGet(`/merchants/me/bestsellers?limit=10`),
+      apiGet(`/merchants/me/orders/stats?from=${dates.from}&to=${dates.to}`),
+      apiGet(`/merchants/me/bestsellers?from=${dates.from}&to=${dates.to}&limit=10`),
     ]);
     if (statsRes.status === 'fulfilled') setStats(statsRes.value);
     if (bsRes.status === 'fulfilled') {
-      let bs = bsRes.value?.bestsellers || bsRes.value || [];
+      const bestsellerData = bsRes.value;
+      let bs = bestsellerData?.top_products || bestsellerData?.bestsellers || bestsellerData || [];
       // Ensure bestsellers is always an array
       if (!Array.isArray(bs)) {
         bs = bs?.data || bs?.items || bs?.products || [];
       }
       setBestsellers(Array.isArray(bs) ? bs : []);
+      setCategories(Array.isArray(bestsellerData?.top_categories) ? bestsellerData.top_categories : []);
     }
     setLoading(false);
   }, [mid, period]);
@@ -128,28 +141,30 @@ export default function MerchantStats() {
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
   // Derived data for charts
-  const dailySales = stats?.daily_sales || stats?.sales_by_day || [];
+  const dailySales = stats?.stats || stats?.daily_sales || stats?.sales_by_day || [];
   const salesChartData = dailySales.map(d => ({
-    label: d.date ? new Date(d.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '',
-    value: d.revenue || d.amount || d.total || 0,
+    label: d.date ? new Date(`${d.date}T00:00:00`).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '',
+    value: d.total_amount ?? d.revenue ?? d.amount ?? d.total ?? 0,
   }));
 
+  const summary = stats?.summary || {};
+
   const ordersByStatus = [
-    { label: 'En attente',  value: stats?.pending_orders   || 0, color: '#ff9800' },
-    { label: 'Confirmées',  value: stats?.confirmed_orders || 0, color: '#2196f3' },
-    { label: 'Expédiées',   value: stats?.shipped_orders   || 0, color: '#9c27b0' },
-    { label: 'Livrées',     value: stats?.delivered_orders || 0, color: '#4caf50' },
-    { label: 'Annulées',    value: stats?.cancelled_orders || 0, color: '#f44336' },
+    { label: 'En attente', value: dailySales.reduce((sum, d) => sum + (d.orders_pending || 0), 0), color: '#ff9800' },
+    { label: 'Confirmées', value: dailySales.reduce((sum, d) => sum + (d.orders_confirmed || 0), 0), color: '#2196f3' },
+    { label: 'Expédiées', value: dailySales.reduce((sum, d) => sum + (d.orders_shipped || 0), 0), color: '#9c27b0' },
+    { label: 'Livrées', value: dailySales.reduce((sum, d) => sum + (d.orders_delivered || 0), 0), color: '#4caf50' },
+    { label: 'Annulées', value: dailySales.reduce((sum, d) => sum + (d.orders_cancelled || 0), 0), color: '#f44336' },
   ].filter(d => d.value > 0);
 
-  const categoryData = stats?.sales_by_category || [];
+  const categoryData = categories;
   const maxCatSales = Math.max(...categoryData.map(c => c.revenue || c.sales || 0), 1);
 
   const kpis = [
-    { title: "Chiffre d'affaires", value: `${((stats?.total_revenue || stats?.revenue || 0)).toLocaleString('fr-FR')} XOF`, subtitle: 'Revenu net sur la période', icon: <EuroSymbol sx={{ fontSize: 20 }} />, gradient: 'linear-gradient(135deg,#1976d2,#42a5f5)', delta: stats?.revenue_growth },
-    { title: 'Commandes',          value: (stats?.total_orders || 0).toLocaleString('fr-FR'),                                subtitle: 'Commandes reçues',           icon: <ShoppingCart sx={{ fontSize: 20 }} />,  gradient: 'linear-gradient(135deg,#9c27b0,#ce93d8)', delta: stats?.orders_growth   },
-    { title: 'Panier moyen',       value: `${((stats?.average_order_value || stats?.avg_order || 0)).toLocaleString('fr-FR')} XOF`, subtitle: 'Valeur moyenne / commande', icon: <ShoppingBag sx={{ fontSize: 20 }} />, gradient: 'linear-gradient(135deg,#ff9800,#ffcc80)', delta: stats?.aov_growth },
-    { title: 'Produits vendus',    value: (stats?.total_items_sold || stats?.products_sold || 0).toLocaleString('fr-FR'),   subtitle: 'Articles écoulés',           icon: <TrendingUp sx={{ fontSize: 20 }} />,   gradient: 'linear-gradient(135deg,#4caf50,#a5d6a7)', delta: stats?.items_growth    },
+    { title: "Chiffre d'affaires", value: `${Number(summary.total_sales || 0).toLocaleString('fr-FR')} XOF`, subtitle: 'Revenu sur la période', icon: <EuroSymbol sx={{ fontSize: 20 }} />, gradient: 'linear-gradient(135deg,#1976d2,#42a5f5)' },
+    { title: 'Commandes', value: Number(summary.total_orders || 0).toLocaleString('fr-FR'), subtitle: 'Commandes reçues', icon: <ShoppingCart sx={{ fontSize: 20 }} />, gradient: 'linear-gradient(135deg,#9c27b0,#ce93d8)' },
+    { title: 'Panier moyen', value: `${Number(summary.avg_order_value || 0).toLocaleString('fr-FR')} XOF`, subtitle: 'Valeur moyenne / commande', icon: <ShoppingBag sx={{ fontSize: 20 }} />, gradient: 'linear-gradient(135deg,#ff9800,#ffcc80)' },
+    { title: 'Produits vendus', value: Number(summary.total_items_sold || bestsellers.reduce((sum, product) => sum + (product.quantity_sold || 0), 0)).toLocaleString('fr-FR'), subtitle: 'Articles écoulés', icon: <TrendingUp sx={{ fontSize: 20 }} />, gradient: 'linear-gradient(135deg,#4caf50,#a5d6a7)' },
   ];
 
   const handleExport = () => {

@@ -125,7 +125,7 @@ export default function AdminSidebar({ collapsed, onToggle }) {
               alt="Alia Admin"
               width={100}
               height={32}
-              style={{ objectFit: 'contain', maxWidth: '100%', height: 'auto', marginBottom: 4 }}
+              style={{ objectFit: 'contain', maxWidth: '100%', width: 'auto', height: 'auto', marginBottom: 4 }}
               priority
             />
             <Typography sx={{ fontSize: 7, color: 'rgba(255,255,255,0.45)', letterSpacing: '3px', fontWeight: 600, mt: 0.3 }}>
